@@ -1,0 +1,17 @@
+
+Higher priority:
+    Framework for homepage
+        Sections for topics
+        Buttons for each generator - or maybe use menu system? That way you can get to any page from any other page
+        Navigation pane, which takes you to "about"
+
+    Choose engine + system to render math
+
+    Framework for each individual page
+        Think about flexible system for control interface
+        Think about input system
+            Maybe have latex input field but it renders in real time like md?
+            If you do, have (?) button with cheat sheet
+
+Lower priority:
+    Come up with a cool name (need available domain name)
