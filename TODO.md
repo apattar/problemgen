@@ -1,0 +1,58 @@
+
+
+Always think first about the easiest way to do things
+Don't forget about the '#' to indicate id
+If you just grab a pencil...
+
+
+design navigation panel
+design homepage main layout
+design single-page generator layout, incl.
+- dropdown
+- options
+  - number ranges
+  - shortcuts for generating and viewing the solution
+- input
+  - control interface
+
+step by step cross product TeX
+step by step mtx mult TeX
+
+
+
+
+
+
+## Misc.
+
+
+### Higher priority:
+- Design homepage
+- access single-problem generators via a nice responsive menu; you'll need to either do this from scratch, or using some framework
+- Think about flexible system for control interface
+- Think about input system and correctness checker?
+  - Maybe have latex input field but it renders in real time like md?
+  - If you do, have (?) button with cheat sheet, and also support as many different input styles as you can
+
+
+#### Cool features ideas
+- Idea! Have a way to generate a sheet of practice problems that prints in a nice format (maybe have a cool way to construct it), and then an answer key!
+- What if, while generating the SBS TeX, likely locations for errors are located and pointed out?
+  - I mean there's a cool use for machine learning, you could "train" a nnet by having people do problems and tell it where their errors were
+    like specific computations that people had trouble with
+    and then have the neural net locate in new randomly generated problems where people are likely to have errors
+
+
+### Lower priority:
+- is there a way to make it look better when the math loads? Maybe just have MathJax not typeset on load, and have nothing in the thing
+
+- Come up with a cool name (need available domain name)
+
+- Way to track stats & progress; leaderboard (you'll need actual server-side stuff)
+
+- when you move to hosting, put citations in About page and see if you need citations elsewhere
+
+
+This js file is going to get big... definitely no reason to load the whole thing always.
+You can look into conditional loading (via ajax? because otherwise it's all going to be loaded anyway)
+of the code for a certain generator only when that dropdown option is chosen?

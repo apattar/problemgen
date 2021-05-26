@@ -1,0 +1,28 @@
+body {
+    background-color: #f0fafc;
+    margin: auto;
+    max-width: 12in;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', Geneva, sans-serif;
+}
+
+nav {
+    background-color: #a1c7d4;
+}
+
+nav a {
+    display: inline-block;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', Geneva, sans-serif;
+    text-decoration: none;
+    color: black;
+    padding: 0.7em;
+}
+
+nav a:hover {
+    background-color: #4a8ba1;
+    color: white;
+}
+
+nav a.active {
+    background-color: black;
+    color: white;
+}
