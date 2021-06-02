@@ -1,5 +1,26 @@
 
 
+
+Layout showing controls
+Integrate shortcuts
+Finish solvers
+Step by step
+
+Levels of computational complexity that might be found in the wild:
+  fractions
+  square roots
+
+
+
+when you change the type of problem, you need to clear the solution window.
+
+
+
+
+
+
+
+
 Always think first about the easiest way to do things
 Don't forget about the '#' to indicate id
 If you just grab a pencil...
@@ -41,15 +62,12 @@ step by step mtx mult TeX
   - I mean there's a cool use for machine learning, you could "train" a nnet by having people do problems and tell it where their errors were
     like specific computations that people had trouble with
     and then have the neural net locate in new randomly generated problems where people are likely to have errors
-
+- Dark mode!
 
 ### Lower priority:
 - is there a way to make it look better when the math loads? Maybe just have MathJax not typeset on load, and have nothing in the thing
-
 - Come up with a cool name (need available domain name)
-
 - Way to track stats & progress; leaderboard (you'll need actual server-side stuff)
-
 - when you move to hosting, put citations in About page and see if you need citations elsewhere
 
 

@@ -1,0 +1,54 @@
+h1 {
+    text-align: center;
+    padding: 0.5em 0;
+}
+
+.window {
+    width: 70%;
+    height: 8em;   /* window height referenced */
+    background-color: beige;
+    border-style: solid;
+    border-width: 2pt;
+    border-radius: 0.5em;
+    margin: 3em auto;
+    position: relative; /* I don't know if there's a better way to do this */
+}
+
+.window button {
+    /* display: block;
+    margin: 0 auto;
+    position: relative;
+    left: 2px;
+    bottom: 12px; */
+    margin: auto 0;
+    position: absolute;
+    top: -15px;
+    left: -20px;
+
+    padding: 8px 15px;
+    font-family: inherit;
+    font-size: large;
+    border: inherit;
+    border-radius: inherit;
+    background-color: #b6ddeb;
+    box-shadow: 2px 2px 2px -1px;
+}
+
+.window button:hover {
+    background-color: #a0c3cf;
+}
+
+.window button:active {
+    /* left: 0px;
+    bottom: 10px; */
+    top: -13px;
+    left:-18px;
+
+    box-shadow: 0 0;
+}
+
+.window p {
+    display: block;
+    height: 8em;
+    line-height: 8em;   /* window height referenced */
+}
