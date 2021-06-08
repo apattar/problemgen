@@ -1,54 +1,94 @@
+main {
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
+}
+
+.sidebar {
+    background-color: white;
+    margin: 2rem 0;
+    padding: 0.5rem;
+    border: solid 2pt black;
+    border-radius: 0.5rem;
+}
+
+.sidebar h2 {
+    background-color:#b6ddeb;
+    padding: 0.5rem;
+    border-radius: inherit;
+    font-size: x-large;
+}
+
+.sidebar button {
+    display: block;
+    width: 100%;
+    padding: 0.4rem;
+}
+
+#problem-type-sidebar button {
+    border-width: 0;
+    border-radius: inherit;
+    background-color: inherit;
+    text-align: left;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+#problem-type-sidebar button:hover {
+    background-color: #888787;
+    color: white;
+}
+
+#problem-type-sidebar button.active {
+    background-color: black;
+    color: white;
+}
+
 h1 {
     text-align: center;
-    padding: 0.5em 0;
+    padding: 2rem 0;
+    font-size: xx-large;
 }
 
 .window {
-    width: 70%;
-    height: 8em;   /* window height referenced */
+    width: 80%;
+    min-height: 10rem;   /* window height referenced */
     background-color: beige;
-    border-style: solid;
-    border-width: 2pt;
-    border-radius: 0.5em;
-    margin: 3em auto;
+    border: solid 2pt black;
+    border-radius: 0.5rem;
+    margin: 3rem auto;
     position: relative; /* I don't know if there's a better way to do this */
 }
 
+
 .window button {
-    /* display: block;
-    margin: 0 auto;
-    position: relative;
-    left: 2px;
-    bottom: 12px; */
-    margin: auto 0;
+    padding: 8px 15px;
     position: absolute;
     top: -15px;
     left: -20px;
+}
 
-    padding: 8px 15px;
+.window p {
+    display: block;
+    text-align: center;
+    margin: 3rem;
+}
+
+.shadowed-button {
     font-family: inherit;
     font-size: large;
+    margin: auto 0;
     border: inherit;
     border-radius: inherit;
     background-color: #b6ddeb;
     box-shadow: 2px 2px 2px -1px;
 }
 
-.window button:hover {
+.shadowed-button:hover {
     background-color: #a0c3cf;
 }
 
-.window button:active {
-    /* left: 0px;
-    bottom: 10px; */
-    top: -13px;
-    left:-18px;
-
+.shadowed-button:active {
+    margin-top: 2px;
+    margin-left: 2px;
     box-shadow: 0 0;
-}
-
-.window p {
-    display: block;
-    height: 8em;
-    line-height: 8em;   /* window height referenced */
 }

@@ -9,39 +9,43 @@
     <link rel="stylesheet" type="text/css" href="styles/generator.css" />
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="index.html">Home</a><a href="about.html">About</a><a class="active">Generator</a>
-        </nav>
-    </header>
-
-    <!-- TODO -->
-    <section>
-        <h2>Linear Algebra</h2>
-        <div class="section-wrapper">
-            <a>Cross Product</a>
-            <a>Matrix Multiplication</a>
-            <!-- gaussian elimination? -->
-            <a>LU Decomposition</a>
-            <a>Matrix Inverse</a>
-            <a>RREF</a>
-        </div>
-        <h2>Multivariable Calculus</h2>
-        <div class="section-wrapper">
-            <a></a>
-        </div>
-    </section>
+    <nav>
+        <a href="index.html">Home</a><a href="about.html">About</a><a class="active">Generator</a>
+    </nav>
 
     <main>
-        <h1>Cross Product Practice</h1>
-
-        <section class="window">
-            <button id="generate-button">GENERATE</button>
-            <p id="problem-text"></p> <!-- Content goes here -->
+        <section id="problem-type-sidebar" class="sidebar">
+            <h2>Linear Algebra</h2>
+            <!-- might add: vector length (sqrts), dot product -->
+                <button id="crossProduct">Cross Product</button>
+                <button id="vecProj">Vector Projections</button>
+                <button id="mtxMult">Matrix Multiplication</button>
+                <button id="gaussElim">Gaussian Elimination</button>
+                <button id="luDecomp">LU Decomposition</button>
+                <button id="mtxInverse">Matrix Inverse</button>
+                <button id="rref">RREF</button>
+            <h2>Multivariable Calculus</h2>
+                <button id="placeholder">Placeholder</button>
         </section>
-        <section class="window">
-            <button id="solution-button">SEE SOLUTION</button>
-            <p id="solution-text"></p> <!-- Solution goes here -->
+
+        <section id="main-content">
+            <h1><span id="title-problem-type">Cross Product</span> Practice</h1>
+
+            <section class="window">
+                <button id="generate-button" class="shadowed-button">GENERATE</button>
+                <p id="problem-text"></p> <!-- Content goes here -->
+            </section>
+            <section class="window">
+                <button id="solution-button" class="shadowed-button">SEE SOLUTION</button>
+                <p id="solution-text"></p> <!-- Solution goes here -->
+            </section>
+        </section>
+        
+        <section id="options-sidebar" class="sidebar">
+            <h2>Keyboard Shortcuts</h2>
+                <p>Generate: <code>g</code></p>
+                <p>Show Solution: <code>s</code></p>
+            <button id="options-button" class="shadowed-button">Options</button>
         </section>
     </main>
 
@@ -51,5 +55,7 @@
     <script type="text/javascript" id="MathJax-script"
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="scripts/generator.js"></script>
+
+    <!-- Remove unnecessary classes & ids when done -->
 </body>
 </html>

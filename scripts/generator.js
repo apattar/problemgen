@@ -1,11 +1,13 @@
 
 let settings =
 {
+    // eventually store settings in local storage?
     // all bounds are inclusive
     min: -5,
     max: 6,
-    minMtxDim: 2,
-    maxMtxDim: 3,
+    minDim: 2,
+    maxDim: 3,
+    computationLevel: "int",  // "frac", "sqrt", "complex" - TODO implement this
     genShortcut: "g",
     solShortcut: "s"
 }
@@ -14,9 +16,34 @@ let settings =
 
 let helper =
 {
+    gcd: function(a, b) {
+        // REQUIRES: input is 2 POSITIVE integers
+        if (a === 0) return b;
+        if (b === 0) return a;
+        if (a > b)
+            return helper.gcd(a % b, b);
+        return helper.gcd(a, b % a);
+    },
+
+    simplify: function(frac) {
+        // REQUIRES: frac.length == 2
+        if (frac[0] < 0 && frac[1] < 0) {
+            frac[0] *= -1;
+            frac[1] *= -1;
+        }
+        let d = helper.gcd(Math.abs(frac[0]), Math.abs(frac[1]));
+        return [frac[0] / d, frac[1] / d];
+    },
+
     randint: function(min, max) {
         return min + Math.floor(Math.random() * ((max + 1) - min));
-    }   
+    },
+
+    randCompatibleFracs: function(_amount) {
+        // make it so the common denominator isn't too large.
+        // you can randomly generate the common denom, then get its divisors,
+        // and generate the denominators from that
+    }
 }
 
 let generate =
@@ -47,11 +74,33 @@ let generate =
 
 let calc =
 {
+    dot: function(vec1, vec2) {
+        // REQUIRES: Inputs are both 1D integer arrays of same positive length
+        let res = 0;
+        for (let i = 0; i < vec1.length; i++) {
+            res += vec1[i] * vec2[i];
+        }
+        return res;
+    },
+
     crossProduct: function(vec1, vec2) {
-        // REQUIRES: Inputs are both 1D number arrays of length 3
+        // REQUIRES: Inputs are both 1D integer arrays of length 3
         return [vec1[1] * vec2[2] - vec1[2] * vec2[1],
                 vec1[2] * vec2[0] - vec1[0] * vec2[2],
                 vec1[0] * vec2[1] - vec1[1] * vec2[0]]
+    },
+
+    vecProj: function(vec1, vec2) {
+        // REQUIRES: Inputs are both 1D integer arrays of same positive length
+        // *** projects vec2 onto vec1
+        // *** if in integer mode, special case - must return vector of fracs
+        let res = [];
+        multBy = calc.dot(vec1, vec2);
+        divBy = calc.dot(vec1, vec1);
+        for (let i = 0; i < vec1.length; i++) {
+            res.push(helper.simplify([multBy * vec1[i], divBy]));
+        }
+        return res;
     },
 
     mtxMult: function(mtx1, mtx2) {
@@ -80,6 +129,12 @@ let calc =
 
 let toTeX =
 {
+    frac: function(frac) {
+        // REQUIRES: input is fraction
+        if (frac[1] == 1) return "" + frac[0];
+        return "\\dfrac{" + frac[0] + "}{" + frac[1] + "}";
+    },
+
     mtx: function(mtx) {
         // REQUIRES: input is 2D array, nonempty and no empty columns
         let res = "\\begin{bmatrix}"
@@ -93,7 +148,7 @@ let toTeX =
 
     vecComma: function(vec) {
         // REQUIRES: input is 1D array with strictly positive length
-        res = "\\langle ";
+        let res = "\\langle ";
         for (let i = 0; i < vec.length - 1; i++) {
             res += vec[i] + ", ";
         }
@@ -103,7 +158,7 @@ let toTeX =
 
     vecCol: function(vec) {
         // REQUIRES: input is 1D array with strictly positive length
-        res = "\\begin{bmatrix}"
+        let res = "\\begin{bmatrix}"
         for (let i = 0; i < vec.length - 1; i++) {
             res += vec[i] + "\\\\"
         }
@@ -131,18 +186,15 @@ const solText = document.getElementById("solution-text");
 
 // this object represents the current active problem
 let activeProb = {
-    type: "crossProduct",  // problem type (camel case)
-    val1: generate.vec(3),  // first (or only) problem item repr.
-    val2: generate.vec(3)   // second problem item repr. (if applicable)
+    type: null,  // will store problem type (camel case)
+    val1: null,  // will store first (or only) problem item repr.
+    val2: null   // will store second problem item repr. (if applicable)
 };
 
 
 let genAndShow =
 {
     crossProduct: function() {
-        if (activeProb.type != "crossProduct")  // TODO remove?
-            activeProb.type = "crossProduct";
-
         activeProb.val1 = generate.vec(3);
         activeProb.val2 = generate.vec(3);
 
@@ -155,24 +207,42 @@ let genAndShow =
         MathJax.typeset([genText]);
     },
 
-    mtxMult: function() {
-        if (activeProb.type != "mtxMult")   // TODO remove?
-            activeProb.type = "mtxMult";
+    vecProj: function() {
+        let n = helper.randint(settings.minDim, settings.maxDim);
+        
+        // note, you're projecting val2 onto val1
+        // TODO: make sure sum of squares of val1 is a manageable denominator
+        activeProb.val1 = generate.vec(n);
+        activeProb.val2 = generate.vec(n);
 
-        let m = helper.randint(settings.minMtxDim, settings.maxMtxDim);
-        let n = helper.randint(settings.minMtxDim, settings.maxMtxDim);
-        let p = helper.randint(settings.minMtxDim, settings.maxMtxDim);
+        genText.textContent =
+            '\\[ \\mathrm{proj}_{' + toTeX.vecComma(activeProb.val1) +
+            "} " + toTeX.vecComma(activeProb.val2) + "\\]";
+        solText.textContent = "";
+
+        MathJax.typesetClear(genText);
+        MathJax.typeset([genText]);
+    },
+
+    mtxMult: function() {
+        let m = helper.randint(settings.minDim, settings.maxDim);
+        let n = helper.randint(settings.minDim, settings.maxDim);
+        let p = helper.randint(settings.minDim, settings.maxDim);
 
         activeProb.val1 = generate.mtx(m, n);
         activeProb.val2 = generate.mtx(n, p);
 
         genText.textContent = 
-            '\\[' + toTeX.mtx(activeProb.val1) + 
+            "\\[" + toTeX.mtx(activeProb.val1) + 
                     toTeX.mtx(activeProb.val2) + "\\]";
         solText.textContent = "";
 
         MathJax.typesetClear(genText);
         MathJax.typeset([genText]);
+    },
+
+    luDecomp: function() {
+        genText.textContent = "unimplemented"
     }
 }
 
@@ -180,11 +250,6 @@ let genAndShow =
 let showSolution =
 {
     crossProduct: function() {
-        if (activeProb.type != "crossProduct") {    // TODO remove?
-            console.error("Problem Type Error: The current active problem is not a cross product.");
-            return;
-        }
-
         let sol = calc.crossProduct(activeProb.val1, activeProb.val2);
         solText.textContent = "\\[" + toTeX.vecComma(sol) + "\\]";
 
@@ -192,12 +257,21 @@ let showSolution =
         MathJax.typeset([solText]);
     },
 
-    mtxMult: function() {
-        if (activeProb.type != "mtxMult") {    // TODO remove?
-            console.error("Problem Type Error: The current active problem is not a matrix multiplication problem.");
-            return;
+    vecProj: function() {
+        let sol = calc.vecProj(activeProb.val1, activeProb.val2);
+        
+        let res = "\\[\\bigg\\langle ";
+        for (let i = 0; i < sol.length; i++) {
+            res += toTeX.frac(sol[i]) + ",";
         }
+        res = res.slice(0, res.length - 1) + "\\bigg\\rangle \\]";
+        solText.textContent = res;
 
+        MathJax.typesetClear(solText);
+        MathJax.typeset([solText]);
+    },
+
+    mtxMult: function() {
         let sol = calc.mtxMult(activeProb.val1, activeProb.val2);
         solText.textContent = "\\[" + toTeX.mtx(sol) + "\\]";
 
@@ -207,17 +281,42 @@ let showSolution =
 }
 
 
-genButton.onclick = genAndShow.mtxMult;
-solButton.onclick = showSolution.mtxMult;
+// attach event handlers
+
+// generating and solving
+genButton.onclick = function() {genAndShow[activeProb.type]();}
+solButton.onclick = function() {showSolution[activeProb.type]();}
 window.onkeydown = function(e) {
     switch (e.key) {
         case settings.genShortcut:
-            genAndShow.mtxMult();
+            genAndShow[activeProb.type]();
             break;
         case settings.solShortcut:
-            showSolution.mtxMult();
+            showSolution[activeProb.type]();
             break;
     }
 }
 
-genAndShow.mtxMult();
+// sidebar problem type buttons
+let titleProbType = document.getElementById("title-problem-type");
+let typeButtons = document.querySelectorAll("#problem-type-sidebar button");
+typeButtons.forEach(function(b1) {
+    b1.onclick = function() {
+        if (b1.classList.contains("active")) return;
+        typeButtons.forEach(function(b2) {
+            b2.classList.remove("active");  // TODO store active one instead?
+        });
+        b1.classList.add("active");
+        activeProb.type = b1.id;
+        titleProbType.innerText = b1.innerText;
+        genAndShow[activeProb.type]();
+    }
+});
+
+// set up first problem, based on first item in list
+// TODO this stuff executes only after everything is loaded
+// TODO - make this based on local storage somehow?
+typeButtons[0].classList.add("active");
+activeProb.type = typeButtons[0].id;
+titleProbType.innerText = typeButtons[0].innerText;
+genAndShow[activeProb.type]();

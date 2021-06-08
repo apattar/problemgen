@@ -2,6 +2,10 @@
 
 
 Layout showing controls
+
+So your options are float, grid, columns?
+
+
 Integrate shortcuts
 Finish solvers
 Step by step
@@ -9,14 +13,6 @@ Step by step
 Levels of computational complexity that might be found in the wild:
   fractions
   square roots
-
-
-
-when you change the type of problem, you need to clear the solution window.
-
-
-
-
 
 
 
@@ -66,7 +62,6 @@ step by step mtx mult TeX
 
 ### Lower priority:
 - is there a way to make it look better when the math loads? Maybe just have MathJax not typeset on load, and have nothing in the thing
-- Come up with a cool name (need available domain name)
 - Way to track stats & progress; leaderboard (you'll need actual server-side stuff)
 - when you move to hosting, put citations in About page and see if you need citations elsewhere
 
@@ -74,3 +69,12 @@ step by step mtx mult TeX
 This js file is going to get big... definitely no reason to load the whole thing always.
 You can look into conditional loading (via ajax? because otherwise it's all going to be loaded anyway)
 of the code for a certain generator only when that dropdown option is chosen?
+  nah, that'll make it less sleek-looking. Unless the initial load time really gets that bad.
+
+
+
+
+#### Name ideas
+- Come up with a cool name (need available domain name)
+    how about something like "training/(rehearsal?) ground/corner/hall" or something? so it feels like somewhere you come to practice
+    (remember that too weird/unrelated a title makes for a hard-to-find website)

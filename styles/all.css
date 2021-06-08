@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     background-color: #f0fafc;
     margin: auto;
@@ -14,7 +18,7 @@ nav a {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', Geneva, sans-serif;
     text-decoration: none;
     color: black;
-    padding: 0.7em;
+    padding: 0.7rem;
 }
 
 nav a:hover {
