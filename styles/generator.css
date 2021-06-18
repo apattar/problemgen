@@ -21,7 +21,6 @@ main {
 .sidebar button {
     display: block;
     width: 100%;
-    padding: 0.4rem;
 }
 
 #problem-type-sidebar button {
@@ -31,6 +30,7 @@ main {
     text-align: left;
     font-family: inherit;
     font-size: inherit;
+    padding: 0.4rem;
 }
 
 #problem-type-sidebar button:hover {
@@ -49,6 +49,10 @@ h1 {
     font-size: xx-large;
 }
 
+#instructions {
+    text-align: center;
+}
+
 .window {
     width: 80%;
     min-height: 10rem;   /* window height referenced */
@@ -59,36 +63,58 @@ h1 {
     position: relative; /* I don't know if there's a better way to do this */
 }
 
-
-.window button {
-    padding: 8px 15px;
-    position: absolute;
-    top: -15px;
-    left: -20px;
-}
-
 .window p {
     display: block;
     text-align: center;
     margin: 3rem;
 }
 
-.shadowed-button {
-    font-family: inherit;
-    font-size: large;
-    margin: auto 0;
-    border: inherit;
-    border-radius: inherit;
+.sol-and-gen-buttons {
+    position: absolute;
+    top: -15px;
+    left: -15px;
     background-color: #b6ddeb;
-    box-shadow: 2px 2px 2px -1px;
 }
 
-.shadowed-button:hover {
+.sol-and-gen-buttons:hover {
     background-color: #a0c3cf;
 }
 
+#step-by-step-button {
+    position: absolute;
+    bottom: -15px;
+    right: -15px;
+}
+
+#options-button {
+    position: relative;
+}
+
+.shadowed-button {
+    font-family: inherit;
+    font-size: large;
+    margin: 0;
+    padding: 8px 15px;
+    border: solid 2pt black;
+    border-radius: 0.5rem;
+    box-shadow: 2px 2px 2px -1px;
+}
+
 .shadowed-button:active {
+    box-shadow: 0 0;
+}
+
+
+/* moving the shadowed buttons when they're clicked */
+.sol-and-gen-buttons:active {
     margin-top: 2px;
     margin-left: 2px;
-    box-shadow: 0 0;
+}
+#step-by-step-button:active {
+    bottom: -17px;
+    right: -17px;
+}
+#options-button:active {
+    left: 2px;
+    top: 2px;
 }

@@ -16,6 +16,34 @@ let settings =
 
 let helper =
 {
+    mtxFracCopy: function(mtx) {
+        res = []
+        for (let i = 0; i < mtx.length; i++) {
+            res.push([]);
+            for (let j = 0; j < mtx[0].length; j++) {
+                res[i].push([mtx[i][j],1]);
+            }
+        }
+        return res;
+    },
+
+    swap: function(arr, i1, i2) {
+        let tmp = arr[i1];
+        arr.splice(i1, 1, arr[i2]);
+        arr.splice(i2, 1, tmp);
+    },
+
+    multrow: function(mtx, row, scaleFactorFrac) {
+        for (let col = 0; col < mtx[0].length; col++)
+            mtx[row][col] = helper.fracs.multiply(mtx[row][col], scaleFactorFrac);
+    },
+
+    rowop: function(mtx, toChange, toAdd, scaleFactorFrac) {
+        for (let col = 0; col < mtx[0].length; col++) {
+            mtx[toChange][col] = helper.fracs.add(mtx[toChange][col], helper.fracs.multiply(mtx[toAdd][col], scaleFactorFrac));
+        }
+    },
+
     gcd: function(a, b) {
         // REQUIRES: input is 2 POSITIVE integers
         if (a === 0) return b;
@@ -27,7 +55,8 @@ let helper =
 
     simplify: function(frac) {
         // REQUIRES: frac.length == 2
-        if (frac[0] < 0 && frac[1] < 0) {
+        if (frac[0] === 0) return [0, 1];
+        if (frac[1] < 0) {
             frac[0] *= -1;
             frac[1] *= -1;
         }
@@ -43,6 +72,17 @@ let helper =
         // make it so the common denominator isn't too large.
         // you can randomly generate the common denom, then get its divisors,
         // and generate the denominators from that
+    },
+
+    fracs: {
+        add: function(f1, f2) {
+            comDenom = f1[1] * f2[1];
+            return helper.simplify([f1[0] * f2[1] + f2[0] * f1[1], comDenom]);
+        },
+
+        multiply: function(f1, f2) {
+            return helper.simplify([f1[0] * f2[0], f1[1] * f2[1]]);
+        }
     }
 }
 
@@ -123,6 +163,90 @@ let calc =
         }
 
         return res;
+    },
+
+    luDecomp: function(mtx) {
+        // requires that mtx is square
+
+        // start by locating the pivot
+        // while you're locating the pivot is when things can go wrong
+        
+        // remember that when you swap rows, you have to store
+        // that information; it will inform P
+
+        let currPivotCol = 1;
+        while (currPivotCol < mtx.length) {
+            // eliminate the stuff below the pivot
+        }
+    },
+
+    // maybe write different versions of rref for different number types?
+    // this would be the integer version
+    rref: function(mtx) {
+        let cpy = helper.mtxFracCopy(mtx);
+
+        // general strategy: locate pivot, one-ify pivot row, then eliminate
+        // the choices you have for making computations easier are:
+            // choosing when to one-ify. You can do that whenever.
+            // swapping rows (unnecessarily). This is not something a human might be able to see.
+
+        pivCol = 0; pivRow = 0;
+        while (pivCol < cpy[0].length && pivRow < cpy.length) {
+            // make sure pivot is nonzero
+            if (cpy[pivRow][pivCol][0] === 0) {
+                // look for a nonzero under pivot, swap if found.
+                // if there are none, move on to the next column
+
+                let rowToSwap = pivRow + 1;
+                while (rowToSwap < cpy.length &&
+                       cpy[rowToSwap][pivCol][0] === 0)
+                    rowToSwap++;
+                
+                if (rowToSwap === cpy.length) {
+                    pivCol++; continue;
+                }
+                else helper.swap(cpy, pivRow, rowToSwap);
+            }
+            
+            pivot = cpy[pivRow][pivCol];
+            pivRecip = helper.simplify([pivot[1], pivot[0]]);
+            // one-ify the pivot row
+            helper.multrow(cpy, pivRow, pivRecip);
+
+            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
+
+            // eliminate the stuff below the pivot, skipping zeros
+            currRow = pivRow + 1;
+            while (currRow < cpy.length) {
+                if (cpy[currRow][pivCol][0] !== 0) {
+                    // gotta make it zero, using a row operation
+                    let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
+                    // let scalar = helper.fracs.multiply(negB, pivRecip);
+                    helper.rowop(cpy, currRow, pivRow, negB);
+                }
+                currRow++;
+            }
+
+            // eliminate the stuff above the pivot, skipping zeros
+            currRow = pivRow - 1;
+            while (currRow >= 0) {
+                if (cpy[currRow][pivCol][0] !== 0) {
+                    // gotta make it zero, using a row operation
+                    let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
+                    // let scalar = helper.fracs.multiply(negB, pivRecip);
+                    helper.rowop(cpy, currRow, pivRow, negB);
+                }
+                currRow--;
+            }
+
+            // move on to the next pivot
+            pivCol++;
+            pivRow++;
+            
+            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
+        }
+
+        return cpy;
     }
 }
 
@@ -130,9 +254,20 @@ let calc =
 let toTeX =
 {
     frac: function(frac) {
-        // REQUIRES: input is fraction
+        // REQUIRES: input is fraction that has been simplified
         if (frac[1] == 1) return "" + frac[0];
+        if (frac[0] < 0) return "-\\dfrac{" + (-frac[0]) + "}{" + frac[1] + "}"
         return "\\dfrac{" + frac[0] + "}{" + frac[1] + "}";
+    },
+
+    fracMtx: function(mtx) {
+        let res = "\\begin{bmatrix}"
+        for (let i = 0; i < mtx.length; i++) {
+            for (let j = 0; j < mtx[i].length - 1; j++)
+                res += toTeX.frac(mtx[i][j]) + "&"
+            res += toTeX.frac(mtx[i][mtx[i].length - 1]) + "\\\\"
+        }
+        return res.slice(0, res.length - 2) + "\\end{bmatrix}"
     },
 
     mtx: function(mtx) {
@@ -169,11 +304,142 @@ let toTeX =
 
 
 
-let sbs =
+let sbsNode =
 {
     crossProduct: function(vec1, vec2) {
         // TODO
-    }
+    },
+
+    rref: function(mtx) {
+        let div = document.createElement("div");
+        div.append(document.createTextNode("To put the matrix " +
+                    "in reduced row echelon form, we perform " +
+                    "the following row operations:\n"));
+
+        function addHeadersToTable(table) {
+            let thead = document.createElement("thead");
+            let trow = document.createElement("tr");
+            let header1 = document.createElement("th");
+            let header2 = document.createElement("th");
+            header1.append(document.createTextNode("Row Operation"))
+            header2.append(document.createTextNode("Matrices"));
+            trow.append(header1);
+            trow.append(header2);
+            thead.append(trow);
+            table.append(thead);
+        }
+
+        function addText(text) {
+            if (onTable) {
+                onTable = false;
+                div.append(table);
+            }
+            div.append(document.createTextNode(text));
+        }
+        function addMtxRow(mtxTeX) {
+            if (!onTable) {
+                onTable = true;
+                if (table) {
+                    // get previous matrix TeX from table
+                }
+                table = document.createElement("table");
+                addHeadersToTable(table);
+                addMtxRow("[unimplemented]");   // TODO store the prev TeX? Maybe can access from previous table?
+            }
+            let row = document.createElement("tr");
+            let col1 = document.createElement("td");
+            let col2 = document.createElement("td");
+            col2.append(document.createTextNode(mtxTeX));
+            row.append(col1);
+            row.append(col2);
+            table.append(row);
+        }
+        function addRowOpRow(rowopTeX) {
+            if (!onTable) {
+                onTable = true;
+                table = document.createElement("table");
+                addHeadersToTable(table);
+                addMtxRow("[unimplemented]");   // TODO store the prev TeX?
+            }
+            let row = document.createElement("tr");
+            let col1 = document.createElement("td");
+            let col2 = document.createElement("td");
+            col1.append(document.createTextNode(rowopTeX));
+            col2.append(document.createTextNode("$\\downarrow$"))
+            row.append(col1);
+            row.append(col2);
+            table.append(row);
+        }
+
+        let table = null;
+        let onTable = false;
+
+        let cpy = helper.mtxFracCopy(mtx);
+        addMtxRow(toTeX.fracMtx(cpy));
+
+        // general strategy: locate pivot, one-ify pivot row, then eliminate
+        // the choices you have for making computations easier are:
+            // choosing when to one-ify. You can do that whenever.
+            // swapping rows (unnecessarily). This is not something a human might be able to see.
+
+        pivCol = 0; pivRow = 0;
+        while (pivCol < cpy[0].length && pivRow < cpy.length) {
+            // make sure pivot is nonzero
+            if (cpy[pivRow][pivCol][0] === 0) {
+                // look for a nonzero under pivot, swap if found.
+                // if there are none, move on to the next column
+
+                let rowToSwap = pivRow + 1;
+                while (rowToSwap < cpy.length &&
+                       cpy[rowToSwap][pivCol][0] === 0)
+                    rowToSwap++;
+                
+                if (rowToSwap === cpy.length) {
+                    pivCol++; continue;
+                }
+                else helper.swap(cpy, pivRow, rowToSwap);
+            }
+            
+            pivot = cpy[pivRow][pivCol];
+            pivRecip = helper.simplify([pivot[1], pivot[0]]);
+            // one-ify the pivot row
+            helper.multrow(cpy, pivRow, pivRecip);
+
+            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
+
+            // eliminate the stuff below the pivot, skipping zeros
+            currRow = pivRow + 1;
+            while (currRow < cpy.length) {
+                if (cpy[currRow][pivCol][0] !== 0) {
+                    // gotta make it zero, using a row operation
+                    let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
+                    // let scalar = helper.fracs.multiply(negB, pivRecip);
+                    helper.rowop(cpy, currRow, pivRow, negB);
+                }
+                currRow++;
+            }
+
+            // eliminate the stuff above the pivot, skipping zeros
+            currRow = pivRow - 1;
+            while (currRow >= 0) {
+                if (cpy[currRow][pivCol][0] !== 0) {
+                    // gotta make it zero, using a row operation
+                    let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
+                    // let scalar = helper.fracs.multiply(negB, pivRecip);
+                    helper.rowop(cpy, currRow, pivRow, negB);
+                }
+                currRow--;
+            }
+
+            // move on to the next pivot
+            pivCol++;
+            pivRow++;
+            
+            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
+        }
+
+        return div;
+    },
 }
 
 
@@ -183,6 +449,8 @@ const genButton = document.getElementById("generate-button");
 const genText = document.getElementById("problem-text");
 const solButton = document.getElementById("solution-button");
 const solText = document.getElementById("solution-text");
+const sbsButton = document.getElementById("step-by-step-button");
+const sbsSection = document.getElementById("sbs-section");
 
 // this object represents the current active problem
 let activeProb = {
@@ -191,6 +459,16 @@ let activeProb = {
     val2: null   // will store second problem item repr. (if applicable)
 };
 
+let genSqMtx = function() {
+    let n = helper.randint(settings.minDim, settings.maxDim);
+    activeProb.val1 = generate.mtx(n, n);
+
+    genText.textContent = "\\[" + toTeX.mtx(activeProb.val1) + "\\]";
+    solText.textContent = "";
+
+    MathJax.typesetClear(genText);
+    MathJax.typeset([genText]);
+}
 
 let genAndShow =
 {
@@ -211,7 +489,7 @@ let genAndShow =
         let n = helper.randint(settings.minDim, settings.maxDim);
         
         // note, you're projecting val2 onto val1
-        // TODO: make sure sum of squares of val1 is a manageable denominator
+        // TODO: make sure sum of squares of val1 is a manageable denominator?
         activeProb.val1 = generate.vec(n);
         activeProb.val2 = generate.vec(n);
 
@@ -241,9 +519,29 @@ let genAndShow =
         MathJax.typeset([genText]);
     },
 
-    luDecomp: function() {
-        genText.textContent = "unimplemented"
-    }
+    luDecomp: genSqMtx,
+    mtxInverse: genSqMtx,
+
+    rref: function() {
+        // TODO why don't you make it so that a fourth of the time the
+        // matrix is singular? The random ones you're generating
+        // tend not to be singular.
+
+        // You can test if a matrix is singular by seeing if one of
+        // its rows is a multiple of one of the others.
+
+        let m = helper.randint(settings.minDim, settings.maxDim);
+        let n = helper.randint(settings.minDim, settings.maxDim);
+        activeProb.val1 = generate.mtx(m, n);
+
+        genText.textContent = "\\[" + toTeX.mtx(activeProb.val1) + "\\]";
+        solText.textContent = "";
+
+        MathJax.typesetClear(genText);
+        MathJax.typeset([genText]);
+    },
+
+
 }
 
 
@@ -277,7 +575,15 @@ let showSolution =
 
         MathJax.typesetClear(solText);
         MathJax.typeset([solText]);
-    }
+    },
+
+    rref: function() {
+        let sol = calc.rref(activeProb.val1);
+        solText.textContent = "\\[" + toTeX.fracMtx(sol) + "\\]";
+
+        MathJax.typesetClear(solText);
+        MathJax.typeset([solText]);
+    },
 }
 
 
@@ -286,6 +592,13 @@ let showSolution =
 // generating and solving
 genButton.onclick = function() {genAndShow[activeProb.type]();}
 solButton.onclick = function() {showSolution[activeProb.type]();}
+sbsButton.onclick = function() {
+    sbsSection.replaceChild(sbsNode[activeProb.type](), sbsSection.firstChild);
+    // want to only have sbsButton activated when the solution is visible.
+    // TODO deal with sbsButton activation
+    // then debug the rref sbs until you've got it working
+    // make sure to commit
+}
 window.onkeydown = function(e) {
     switch (e.key) {
         case settings.genShortcut:

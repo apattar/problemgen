@@ -13,16 +13,16 @@
         <a href="index.html">Home</a><a href="about.html">About</a><a class="active">Generator</a>
     </nav>
 
-    <main>
+    <main id="main">
         <section id="problem-type-sidebar" class="sidebar">
             <h2>Linear Algebra</h2>
             <!-- might add: vector length (sqrts), dot product -->
                 <button id="crossProduct">Cross Product</button>
                 <button id="vecProj">Vector Projections</button>
                 <button id="mtxMult">Matrix Multiplication</button>
-                <button id="gaussElim">Gaussian Elimination</button>
+                <!-- <button id="gaussElim">Gaussian Elimination</button> -->
                 <button id="luDecomp">LU Decomposition</button>
-                <button id="mtxInverse">Matrix Inverse</button>
+                <button id="mtxInverse">Gauss-Jordan Inverse</button>
                 <button id="rref">RREF</button>
             <h2>Multivariable Calculus</h2>
                 <button id="placeholder">Placeholder</button>
@@ -31,13 +31,19 @@
         <section id="main-content">
             <h1><span id="title-problem-type">Cross Product</span> Practice</h1>
 
+            <p id="instructions">Find the [unimplemented].</p>
+
             <section class="window">
-                <button id="generate-button" class="shadowed-button">GENERATE</button>
+                <button id="generate-button" class="sol-and-gen-buttons shadowed-button">GENERATE</button>
                 <p id="problem-text"></p> <!-- Content goes here -->
             </section>
             <section class="window">
-                <button id="solution-button" class="shadowed-button">SEE SOLUTION</button>
+                <button id="solution-button" class="sol-and-gen-buttons shadowed-button">SEE SOLUTION</button>
                 <p id="solution-text"></p> <!-- Solution goes here -->
+                <button id="step-by-step-button" class="shadowed-button">see step-by-step solution</button>
+            </section>
+            <section id="sbs-section">
+                <!-- step-by-step instructions go here -->
             </section>
         </section>
         
