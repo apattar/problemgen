@@ -83,6 +83,11 @@ let helper =
         multiply: function(f1, f2) {
             return helper.simplify([f1[0] * f2[0], f1[1] * f2[1]]);
         }
+    },
+
+    removeAllChildren: function(node) {
+        while (node.firstChild)
+            node.removeChild(node.firstChild);
     }
 }
 
@@ -255,17 +260,36 @@ let toTeX =
 {
     frac: function(frac) {
         // REQUIRES: input is fraction that has been simplified
+        // does not include \[\]s
         if (frac[1] == 1) return "" + frac[0];
         if (frac[0] < 0) return "-\\dfrac{" + (-frac[0]) + "}{" + frac[1] + "}"
         return "\\dfrac{" + frac[0] + "}{" + frac[1] + "}";
     },
 
     fracMtx: function(mtx) {
+        // TODO is this used?
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < mtx.length; i++) {
             for (let j = 0; j < mtx[i].length - 1; j++)
                 res += toTeX.frac(mtx[i][j]) + "&"
             res += toTeX.frac(mtx[i][mtx[i].length - 1]) + "\\\\"
+        }
+        return res.slice(0, res.length - 2) + "\\end{bmatrix}"
+    },
+
+    fracMtxWBox: function(mtx, boxRow, boxCol) {
+        let res = "\\begin{bmatrix}"
+        for (let i = 0; i < mtx.length; i++) {
+            for (let j = 0; j < mtx[i].length - 1; j++) {
+                if (i === boxRow && j === boxCol)
+                    res += "\\fbox{" + toTeX.frac(mtx[i][j]) + "}&";
+                else res += toTeX.frac(mtx[i][j]) + "&";
+            }
+            if (i === boxRow && mtx[i].length - 1 === boxCol) {
+                res += "\\fbox{" +
+                       toTeX.frac(mtx[i][mtx[i].length - 1]) + "}\\\\";
+            } else
+                res += toTeX.frac(mtx[i][mtx[i].length - 1]) + "\\\\";
         }
         return res.slice(0, res.length - 2) + "\\end{bmatrix}"
     },
@@ -306,18 +330,19 @@ let toTeX =
 
 let sbsNode =
 {
-    crossProduct: function(vec1, vec2) {
+    crossProduct: function() {
         // TODO
     },
 
-    rref: function(mtx) {
+    rref: function() {
         let div = document.createElement("div");
-        div.append(document.createTextNode("To put the matrix " +
-                    "in reduced row echelon form, we perform " +
-                    "the following row operations:\n"));
+        let table = null;
+        let onTable = false;
 
+        // if all this stuff ends up only being necessary for rref,
+        // which we know it won't...
+        // TODO add a "dom" object to helper (and maybe organize it more)
         function addHeadersToTable(table) {
-            let thead = document.createElement("thead");
             let trow = document.createElement("tr");
             let header1 = document.createElement("th");
             let header2 = document.createElement("th");
@@ -325,57 +350,64 @@ let sbsNode =
             header2.append(document.createTextNode("Matrices"));
             trow.append(header1);
             trow.append(header2);
-            thead.append(trow);
-            table.append(thead);
+            table.append(trow);
         }
-
         function addText(text) {
             if (onTable) {
                 onTable = false;
                 div.append(table);
             }
-            div.append(document.createTextNode(text));
+            let p = document.createElement("p");
+            p.append(document.createTextNode(text));
+            div.append(p);
         }
         function addMtxRow(mtxTeX) {
-            if (!onTable) {
-                onTable = true;
-                if (table) {
-                    // get previous matrix TeX from table
-                }
-                table = document.createElement("table");
-                addHeadersToTable(table);
-                addMtxRow("[unimplemented]");   // TODO store the prev TeX? Maybe can access from previous table?
-            }
-            let row = document.createElement("tr");
-            let col1 = document.createElement("td");
-            let col2 = document.createElement("td");
+            // assumes onTable is true
+            row = document.createElement("tr");
+            col1 = document.createElement("td");
+            col2 = document.createElement("td");
             col2.append(document.createTextNode(mtxTeX));
             row.append(col1);
             row.append(col2);
             table.append(row);
         }
-        function addRowOpRow(rowopTeX) {
+        function addRowOp(rowopTeX, mtxTeX) {
             if (!onTable) {
                 onTable = true;
+                let oldmtxrow = null;
+                if (table !== null) oldmtxrow = table.lastElementChild;
                 table = document.createElement("table");
                 addHeadersToTable(table);
-                addMtxRow("[unimplemented]");   // TODO store the prev TeX?
+                if (oldmtxrow) table.append(oldmtxrow.cloneNode(true));
             }
             let row = document.createElement("tr");
             let col1 = document.createElement("td");
             let col2 = document.createElement("td");
             col1.append(document.createTextNode(rowopTeX));
-            col2.append(document.createTextNode("$\\downarrow$"))
+            col2.append(document.createTextNode("\\[\\Bigg\\downarrow\\]"));
             row.append(col1);
             row.append(col2);
             table.append(row);
+            
+            addMtxRow(mtxTeX);
         }
 
-        let table = null;
-        let onTable = false;
+        // addText("Remember that a matrix in reduced row echelon form " +
+        //         "must satisfy the following conditions: "
 
-        let cpy = helper.mtxFracCopy(mtx);
-        addMtxRow(toTeX.fracMtx(cpy));
+        addText("To put the matrix into reduced row " +
+                "echelon form, we perform the following row operations. " +
+                "Where applicable, the current \"pivot\" is boxed.");
+
+        let cpy = helper.mtxFracCopy(activeProb.val1);
+        
+        // add the first row to the table
+        onTable = true;
+        table = document.createElement("table");
+        addHeadersToTable(table);
+        addMtxRow(((cpy[0][0][0] != 0) ? toTeX.fracMtxWBox(cpy, 0, 0)
+                                       : toTeX.fracMtx(cpy)));
+        
 
         // general strategy: locate pivot, one-ify pivot row, then eliminate
         // the choices you have for making computations easier are:
@@ -397,15 +429,20 @@ let sbsNode =
                 if (rowToSwap === cpy.length) {
                     pivCol++; continue;
                 }
-                else helper.swap(cpy, pivRow, rowToSwap);
+                
+                    helper.swap(cpy, pivRow, rowToSwap);
+                    addRowOp("\\[\\text{Swap } \\text{R}" + (pivRow + 1) +
+                             " \\text{ and } \\text{R}" + (rowToSwap + 1) + "\\]",
+                             toTeX.fracMtxWBox(cpy, pivRow, pivCol));
             }
             
             pivot = cpy[pivRow][pivCol];
             pivRecip = helper.simplify([pivot[1], pivot[0]]);
             // one-ify the pivot row
             helper.multrow(cpy, pivRow, pivRecip);
-
-            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
+            addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
+                     toTeX.frac(pivRecip) + "\\text{R}" + (pivRow + 1) + "\\]",
+                     toTeX.fracMtxWBox(cpy, pivRow, pivCol));
 
             // eliminate the stuff below the pivot, skipping zeros
             currRow = pivRow + 1;
@@ -415,6 +452,13 @@ let sbsNode =
                     let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
                     // let scalar = helper.fracs.multiply(negB, pivRecip);
                     helper.rowop(cpy, currRow, pivRow, negB);
+                    addRowOp("\\[\\text{R}" + (currRow + 1) + 
+                             " = \\text{R}" + (currRow + 1) +
+                             ((negB[0] < 0) ? " - " : " + ") +
+                             toTeX.frac([Math.abs(negB[0]), negB[1]]) +
+                             "\\text{R}" + (pivRow + 1)
+                             + "\\]",
+                             toTeX.fracMtxWBox(cpy, pivRow, pivCol));
                 }
                 currRow++;
             }
@@ -427,6 +471,13 @@ let sbsNode =
                     let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
                     // let scalar = helper.fracs.multiply(negB, pivRecip);
                     helper.rowop(cpy, currRow, pivRow, negB);
+                    addRowOp("\\[\\text{R}" + (currRow + 1) + 
+                             " = \\text{R}" + (currRow + 1) +
+                             ((negB[0] < 0) ? " - " : " + ") +
+                             toTeX.frac([Math.abs(negB[0]), negB[1]]) +
+                             "\\text{R}" + (pivRow + 1)
+                             + "\\]",
+                             toTeX.fracMtxWBox(cpy, pivRow, pivCol));
                 }
                 currRow--;
             }
@@ -434,10 +485,13 @@ let sbsNode =
             // move on to the next pivot
             pivCol++;
             pivRow++;
-            
-            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
         }
 
+        if (onTable) {  // TODO necessary?
+            onTable = false;
+            div.append(table);
+        }
+        addText("The matrix is now in reduced row echelon form.");
         return div;
     },
 }
@@ -475,14 +529,9 @@ let genAndShow =
     crossProduct: function() {
         activeProb.val1 = generate.vec(3);
         activeProb.val2 = generate.vec(3);
-
         genText.textContent = 
             "\\[" + toTeX.vecComma(activeProb.val1) + " \\times " +
                     toTeX.vecComma(activeProb.val2) + "\\]";
-        solText.textContent = "";
-
-        MathJax.typesetClear(genText);
-        MathJax.typeset([genText]);
     },
 
     vecProj: function() {
@@ -496,10 +545,6 @@ let genAndShow =
         genText.textContent =
             '\\[ \\mathrm{proj}_{' + toTeX.vecComma(activeProb.val1) +
             "} " + toTeX.vecComma(activeProb.val2) + "\\]";
-        solText.textContent = "";
-
-        MathJax.typesetClear(genText);
-        MathJax.typeset([genText]);
     },
 
     mtxMult: function() {
@@ -513,10 +558,6 @@ let genAndShow =
         genText.textContent = 
             "\\[" + toTeX.mtx(activeProb.val1) + 
                     toTeX.mtx(activeProb.val2) + "\\]";
-        solText.textContent = "";
-
-        MathJax.typesetClear(genText);
-        MathJax.typeset([genText]);
     },
 
     luDecomp: genSqMtx,
@@ -535,10 +576,6 @@ let genAndShow =
         activeProb.val1 = generate.mtx(m, n);
 
         genText.textContent = "\\[" + toTeX.mtx(activeProb.val1) + "\\]";
-        solText.textContent = "";
-
-        MathJax.typesetClear(genText);
-        MathJax.typeset([genText]);
     },
 
 
@@ -550,9 +587,6 @@ let showSolution =
     crossProduct: function() {
         let sol = calc.crossProduct(activeProb.val1, activeProb.val2);
         solText.textContent = "\\[" + toTeX.vecComma(sol) + "\\]";
-
-        MathJax.typesetClear(solText);
-        MathJax.typeset([solText]);
     },
 
     vecProj: function() {
@@ -564,25 +598,16 @@ let showSolution =
         }
         res = res.slice(0, res.length - 1) + "\\bigg\\rangle \\]";
         solText.textContent = res;
-
-        MathJax.typesetClear(solText);
-        MathJax.typeset([solText]);
     },
 
     mtxMult: function() {
         let sol = calc.mtxMult(activeProb.val1, activeProb.val2);
         solText.textContent = "\\[" + toTeX.mtx(sol) + "\\]";
-
-        MathJax.typesetClear(solText);
-        MathJax.typeset([solText]);
     },
 
     rref: function() {
         let sol = calc.rref(activeProb.val1);
         solText.textContent = "\\[" + toTeX.fracMtx(sol) + "\\]";
-
-        MathJax.typesetClear(solText);
-        MathJax.typeset([solText]);
     },
 }
 
@@ -590,22 +615,30 @@ let showSolution =
 // attach event handlers
 
 // generating and solving
-genButton.onclick = function() {genAndShow[activeProb.type]();}
-solButton.onclick = function() {showSolution[activeProb.type]();}
+genButton.onclick = function() {
+    genAndShow[activeProb.type]();
+    solText.textContent = "";
+    sbsButton.classList.add("inactive");
+    helper.removeAllChildren(sbsSection);
+    MathJax.typesetClear(genText); MathJax.typeset([genText]);
+}
+solButton.onclick = function() {
+    showSolution[activeProb.type]();
+    MathJax.typesetClear(solText); MathJax.typeset([solText]);
+    sbsButton.classList.remove("inactive");
+}
 sbsButton.onclick = function() {
-    sbsSection.replaceChild(sbsNode[activeProb.type](), sbsSection.firstChild);
-    // want to only have sbsButton activated when the solution is visible.
-    // TODO deal with sbsButton activation
-    // then debug the rref sbs until you've got it working
-    // make sure to commit
+    helper.removeAllChildren(sbsSection);
+    sbsSection.appendChild(sbsNode[activeProb.type]());
+    MathJax.typesetClear(sbsSection); MathJax.typeset([sbsSection]);
 }
 window.onkeydown = function(e) {
     switch (e.key) {
         case settings.genShortcut:
-            genAndShow[activeProb.type]();
+            genButton.click();
             break;
         case settings.solShortcut:
-            showSolution[activeProb.type]();
+            genButton.click();
             break;
     }
 }
@@ -622,7 +655,7 @@ typeButtons.forEach(function(b1) {
         b1.classList.add("active");
         activeProb.type = b1.id;
         titleProbType.innerText = b1.innerText;
-        genAndShow[activeProb.type]();
+        genButton.click();
     }
 });
 
@@ -632,4 +665,4 @@ typeButtons.forEach(function(b1) {
 typeButtons[0].classList.add("active");
 activeProb.type = typeButtons[0].id;
 titleProbType.innerText = typeButtons[0].innerText;
-genAndShow[activeProb.type]();
+genButton.click();

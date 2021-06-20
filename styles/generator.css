@@ -3,6 +3,9 @@ main {
     grid-template-columns: 1fr 4fr 1fr;
 }
 
+
+/* sidebars */
+
 .sidebar {
     background-color: white;
     margin: 2rem 0;
@@ -43,6 +46,9 @@ main {
     color: white;
 }
 
+
+/* main content */
+
 h1 {
     text-align: center;
     padding: 2rem 0;
@@ -69,13 +75,15 @@ h1 {
     margin: 3rem;
 }
 
+
+/* shadowed buttons */
+
 .sol-and-gen-buttons {
     position: absolute;
     top: -15px;
     left: -15px;
     background-color: #b6ddeb;
 }
-
 .sol-and-gen-buttons:hover {
     background-color: #a0c3cf;
 }
@@ -85,9 +93,19 @@ h1 {
     bottom: -15px;
     right: -15px;
 }
+#step-by-step-button.inactive {
+    display: none;
+}
 
 #options-button {
     position: relative;
+}
+
+.aux-buttons {
+    background-color: rgb(238, 237, 237);
+}
+.aux-buttons:hover {
+    background-color: lightgrey;
 }
 
 .shadowed-button {
@@ -106,6 +124,7 @@ h1 {
 
 
 /* moving the shadowed buttons when they're clicked */
+
 .sol-and-gen-buttons:active {
     margin-top: 2px;
     margin-left: 2px;
@@ -117,4 +136,20 @@ h1 {
 #options-button:active {
     left: 2px;
     top: 2px;
+}
+
+
+/* sbs */
+
+#sbs-section {
+    margin: 2rem;
+}
+
+table {
+    margin: 1rem auto;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 0;
 }
