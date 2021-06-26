@@ -13,6 +13,42 @@ let settings =
 }
 
 
+let debugging =
+{
+    printMtx: function(mtx) {
+        let m = mtx.length;
+        let n = mtx[0].length;
+
+        maxColWidths = [];
+        for (let i = 0; i < n; i++) maxColWidths.push(1);
+        
+        // sweep through the matrix once to get the widths
+        for (let i = 0; i < m; i++) {
+            for (let j = 0; j < n; j++) {
+                let width = ("" + mtx[i][j]).length;
+                if (width > maxColWidths[j])
+                    maxColWidths[j] = width;
+            }
+        }
+ 
+        // then generate the string
+        let str = "[\n";
+        for (let i = 0; i < m; i++) {
+            for (let j = 0; j < n; j++) {
+                let width = ("" + mtx[i][j]).length;
+                let diff = maxColWidths[j] - width;
+                for (let k = 0; k < diff; k++) str += " ";
+                str += mtx[i][j];
+                str += " ";
+            }
+            str += "\n"
+        }
+        str += "]";
+
+        console.log(str)
+    }
+}
+
 
 let helper =
 {
@@ -30,6 +66,26 @@ let helper =
     },
 
     matrices: {
+        identity: function(n) {     // TODO remove?
+            let res = [];
+            for (let i = 0; i < n; i++) {
+                res.push([]);
+                for (let j = 0; j < n; j++)
+                    res[i].push((i === j) ? 1 : 0);
+            }
+            return res;
+        },
+
+        fracIdentity: function(n) {
+            let res = [];
+            for (let i = 0; i < n; i++) {
+                res.push([]);
+                for (let j = 0; j < n; j++)
+                    res[i].push((i === j) ? ([1,1]) : ([0,1]));
+            }
+            return res;
+        },
+
         swap: function(arr, i1, i2) {
             let tmp = arr[i1];
             arr.splice(i1, 1, arr[i2]);
@@ -182,6 +238,37 @@ let calc =
         return res;
     },
 
+    det: function(mtx, k) {
+        // assumes k >= 1 and matrix is valid; i.e. operation is defined
+        // the k by k principal submatrix of mtx will be considered
+        // uses the cofactor formula for the first row
+
+        // base case
+        if (k === 1) return mtx[0][0];
+
+        let res = 0;
+        let multiplier = 1; // doing this only works if even row (idxing by 1)
+        for (let i = 0; i < k; i++) {
+            // assemble the matrix that doesn't include that column or 1st row,
+            // and find its determinant
+            let sub = [];
+            for (let r = 1; r < k; r++) {
+                sub.push([]);
+                for (let c = 0; c < k; c++) {
+                    if (c === i) {
+                        c++;
+                        if (c === k) break;
+                    }
+                    sub[r-1].push(mtx[r][c]);
+                }
+            }
+            let subdet = calc.det(sub, k - 1);
+            res += multiplier * mtx[0][i] * subdet;
+            multiplier *= -1;
+        }
+        return res;
+    },
+
     crossProduct: function(vec1, vec2) {
         // REQUIRES: Inputs are both 1D integer arrays of length 3
         return [vec1[1] * vec2[2] - vec1[2] * vec2[1],
@@ -224,19 +311,62 @@ let calc =
         return res;
     },
 
-    luDecomp: function(mtx) {
-        // requires that mtx is square
+    fracMtxMult: function(mtx1, mtx2) {
+        // REQUIRES: Inputs are valid nonempty matrix representations
+        //           for which matrix multiplication is defined.
+        let m = mtx1.length;
+        let n = mtx1[0].length;
+        let p = mtx2[0].length;
 
-        // start by locating the pivot
-        // while you're locating the pivot is when things can go wrong
-        
-        // remember that when you swap rows, you have to store
-        // that information; it will inform P
-
-        let currPivotCol = 1;
-        while (currPivotCol < mtx.length) {
-            // eliminate the stuff below the pivot
+        let res = [];
+        let tmp = null;
+        for (let i = 0; i < m; i++) {
+            res.push([]);
+            for (let j = 0; j < p; j++) {
+                tmp = [0,1];
+                for (let k =0; k < n; k++)
+                    tmp = helper.fracs.add(tmp,
+                        helper.fracs.multiply(mtx1[i][k], mtx2[k][j]));
+                res[i].push(tmp);
+            }
         }
+
+        return res;
+    },
+
+    luDecomp: function(mtx) {
+        // Let A be an n by n invertible matrix. Then A has a pure LU
+        // decomp iff all principal leading submatrices of A have full rank.
+        // If permutations are allowed, then the matrix
+        // just has to be invertible in order to have an LU decomposition.
+
+        let n = mtx.length;
+        let cpy = helper.fracs.mtxFracCopy(mtx);
+        let L = helper.matrices.fracIdentity(n);        // acts as accumulator
+            // you have to multiply new ones coming from the right
+
+        for (let pivRow = 0; pivRow < n; pivRow++) {
+            // eliminate everything below the pivot
+            for (let currRow = pivRow + 1; currRow < n; currRow++) {
+                if (cpy[currRow][pivRow][0] === 0) continue;
+
+                // eliminate it via a row operation
+                let pivot = cpy[pivRow][pivRow];
+                let multiplier = helper.fracs.multiply(cpy[currRow][pivRow],
+                    helper.fracs.simplify([pivot[1], pivot[0]]));
+                helper.matrices.rowop(cpy, currRow, pivRow,
+                    helper.fracs.multiply([-1,1], multiplier));
+
+                // find the inverse of the elimination matrix corresponding
+                // to that row operation; multiply it into the accumulator
+                let inv = helper.matrices.fracIdentity(n);
+                inv[currRow][pivRow] = multiplier;
+                L = calc.fracMtxMult(L, inv);
+            }
+        }
+
+        // return the two resulting matrices
+        return [L, cpy];
     },
 
     // maybe write different versions of rref for different number types?
@@ -391,16 +521,16 @@ let sbsNode =
         let text = "We find the cross product as follows:\\begin{align*}";
 
         text += toTeX.vecComma(activeProb.val1) + " \\times " + toTeX.vecComma(activeProb.val2);
-        text += " ~~=~~ \\begin{vmatrix}\\hat{\\mathbf{i}}&\
+        text += " ~~&=~~ \\begin{vmatrix}\\hat{\\mathbf{i}}&\
             \\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\"
             + x[0] + "&" + x[1] + "&" + x[2] + "\\\\"
-            + y[0] + "&" + y[1] + "&" + y[2] + "\\end{vmatrix}";
-        text += " ~~&=~~ \\langle " + "(" + x[1] + ")" + "(" + y[2] + ")" + " - " + "(" + x[2] + ")" + "(" + y[1] + ")" + ",~~ " +
+            + y[0] + "&" + y[1] + "&" + y[2] + "\\end{vmatrix}\\\\";
+        text += "~~&=~~ \\langle " + "(" + x[1] + ")" + "(" + y[2] + ")" + " - " + "(" + x[2] + ")" + "(" + y[1] + ")" + ",~~ " +
                       "(" + x[2] + ")" + "(" + y[0] + ")" + " - " + "(" + x[0] + ")" + "(" + y[2] + ")" + ",~~ " +
                       "(" + x[0] + ")" + "(" + y[1] + ")" + " - " + "(" + x[1] + ")" + "(" + y[0] + ")" + "\\rangle\\\\";
         text += "~~&=~~ \\langle " + (x[1] * y[2]) + (((x[2] * y[1]) < 0) ? " + " : " - ") + Math.abs(x[2] * y[1]) + ",~~ " +
                         (x[2] * y[0]) + (((x[0] * y[2]) < 0) ? " + " : " - ") + Math.abs(x[0] * y[2]) + ",~~ " +
-                        (x[0] * y[1]) + (((x[1] * y[0]) < 0) ? " + " : " - ") + Math.abs(x[1] * y[0]) + "\\rangle\\\\\\\\";
+                        (x[0] * y[1]) + (((x[1] * y[0]) < 0) ? " + " : " - ") + Math.abs(x[1] * y[0]) + "\\rangle\\\\";
         text += "~~&=~~ " + toTeX.vecComma(calc.crossProduct(activeProb.val1, activeProb.val2)) + "\\\\\\\\\\end{align*}";
 
         text += "To get this expression, we used the following cross product formula:\
@@ -609,7 +739,26 @@ let genAndShow =
                     toTeX.mtx(activeProb.val2) + "\\]";
     },
 
-    luDecomp: genSqMtx,
+    luDecomp: function() {
+        let n = helper.randint(settings.minDim, settings.maxDim);
+        
+        function works(mtx) {
+            // checks all principal leading submatrices for singularity
+            for (let k = 1; k <= mtx.length; k++)
+                if (calc.det(mtx, k) === 0) return false;
+            return true;
+        }
+
+        let test = generate.mtx(n, n);
+        while (!works(test)) {
+            console.log("Found a matrix for which there does not exist a pure \
+                         LU decomposition: " + toTeX.mtx(test));
+            test = generate.mtx(n, n);
+        }
+
+        activeProb.val1 = test;
+        genText.textContent = "\\[" + toTeX.mtx(test) + "\\]";
+    },
     mtxInverse: genSqMtx,
 
     rref: function() {
@@ -654,6 +803,12 @@ let showSolution =
         solText.textContent = "\\[" + toTeX.mtx(sol) + "\\]";
     },
 
+    luDecomp: function() {
+        let decomp = calc.luDecomp(activeProb.val1);
+        solText.textContent = "\\[L=" + toTeX.fracMtx(decomp[0]) + 
+                              ",~~ U=" + toTeX.fracMtx(decomp[1]) + "\\]"
+    },
+
     rref: function() {
         let sol = calc.rref(activeProb.val1);
         solText.textContent = "\\[" + toTeX.fracMtx(sol) + "\\]";
@@ -687,7 +842,7 @@ window.onkeydown = function(e) {
             genButton.click();
             break;
         case settings.solShortcut:
-            genButton.click();
+            solButton.click();
             break;
     }
 }
