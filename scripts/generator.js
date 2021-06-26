@@ -149,7 +149,7 @@ let helper =
             while (node.firstChild)
                 node.removeChild(node.firstChild);
         },
-        addHeadersToTable: function(table) {
+        addHeadersToTable: function(table, lu) {
             let trow = document.createElement("tr");
             let header1 = document.createElement("th");
             let header2 = document.createElement("th");
@@ -157,30 +157,36 @@ let helper =
             header2.append(document.createTextNode("Matrices"));
             trow.append(header1);
             trow.append(header2);
+            if (lu) {
+                let header3 = document.createElement("th");
+                header3.append(document.createTextNode("" + 
+                    "Elimination Matrices"));
+                trow.append(header3);
+            }
             table.append(trow);
         },
         addText: function(text, onTable, table, div) {
-            if (onTable) {
-                onTable = false;
+            if (onTable[0]) {
+                onTable[0] = false;
                 div.append(table);
             }
             let p = document.createElement("p");
             p.append(document.createTextNode(text));
             div.append(p);
         },
-        addMtxRow: function(mtxTeX, table) {
+        addMtxRow: function(mtxTeX, table, lu) {
             // assumes onTable is true
             row = document.createElement("tr");
-            col1 = document.createElement("td");
             col2 = document.createElement("td");
             col2.append(document.createTextNode(mtxTeX));
-            row.append(col1);
+            row.append(document.createElement("td"));
             row.append(col2);
+            if (lu) row.append(document.createElement("td"));   // TODO I guess you don't need this?
             table.append(row);
         },
-        addRowOp: function(rowopTeX, mtxTeX, onTable, table) {
-            if (!onTable) {
-                onTable = true;
+        addRowOp: function(rowopTeX, mtxTeX, onTable, table, elimMtxTeX) {
+            if (!onTable[0]) {
+                onTable[0] = true;
                 let oldmtxrow = null;
                 if (table !== null) oldmtxrow = table.lastElementChild;
                 table = document.createElement("table");
@@ -194,9 +200,14 @@ let helper =
             col2.append(document.createTextNode("\\[\\Bigg\\downarrow\\]"));
             row.append(col1);
             row.append(col2);
+            if (elimMtxTeX) {
+                let col3 = document.createElement("td");
+                col3.append(document.createTextNode(elimMtxTeX));
+                row.append(col3);
+            }
             table.append(row);
             
-            helper.dom.addMtxRow(mtxTeX, table);
+            helper.dom.addMtxRow(mtxTeX, table, elimMtxTeX);
         },
     },
 }
@@ -559,10 +570,136 @@ let sbsNode =
         text += "\\end{align*}"
     },
 
+    mtxMult: function() {
+
+    },
+
+    luDecomp: function () {
+        let div = document.createElement("div");
+        let table = null;
+        let onTable = [false];
+
+        helper.dom.addText("In order to find the LU decomposition of the\
+                            matrix, we perform the following row operations to\
+                            convert the matrix into an upper triangular one,\
+                            taking note of the elimination matrices that\
+                            correspond to each row operation.\
+                            The pivot currently being considered is boxed.",
+                            onTable, table, div);
+        
+        let cpy = helper.fracs.mtxFracCopy(activeProb.val1);
+        
+        // add the first row to the table
+        onTable[0] = true;
+        table = document.createElement("table");
+        helper.dom.addHeadersToTable(table, true);
+        helper.dom.addMtxRow(((cpy[0][0][0] != 0) ? toTeX.fracMtxWBox(cpy, 0, 0)
+                             : toTeX.fracMtx(cpy)), table, true);
+
+        let n = cpy.length;
+        // let L = helper.matrices.fracIdentity(n);        // acts as accumulator
+        //     // you have to multiply new ones coming from the right
+        let elims = []  // stores the elimination matrices
+                        // in order of application
+        let invs = []   // stores the inverses of the matrices in elims
+
+        for (let pivRow = 0; pivRow < n; pivRow++) {
+            // eliminate everything below the pivot
+            for (let currRow = pivRow + 1; currRow < n; currRow++) {
+                if (cpy[currRow][pivRow][0] === 0) continue;
+
+                // eliminate it via a row operation
+                let pivot = cpy[pivRow][pivRow];
+                let multiplier = helper.fracs.multiply(cpy[currRow][pivRow],
+                    helper.fracs.simplify([pivot[1], pivot[0]]));
+                let negMultiplier = helper.fracs.multiply([-1,1], multiplier);
+                helper.matrices.rowop(cpy, currRow, pivRow, negMultiplier);
+
+                // // find the inverse of the elimination matrix corresponding
+                // // to that row operation; multiply it into the accumulator
+                let elim = helper.matrices.fracIdentity(n);
+                elim[currRow][pivRow] = negMultiplier;
+                elims.push(elim);
+                let inv = helper.matrices.fracIdentity(n);
+                inv[currRow][pivRow] = multiplier;
+                invs.push(inv);
+
+                helper.dom.addRowOp("\\[\\text{R}" + (currRow + 1) + 
+                    " = \\text{R}" + (currRow + 1) +
+                    ((Math.abs(negMultiplier[0]) === 1 && negMultiplier[1] === 1) ?
+                    ((negMultiplier[0] === 1) ? " + " : " - ") :
+                    (((negMultiplier[0] < 0) ? " - " : " + ") +
+                    toTeX.frac([Math.abs(negMultiplier[0]), negMultiplier[1]]))) +
+                    "\\text{R}" + (pivRow + 1)
+                    + "\\]",
+                    toTeX.fracMtxWBox(cpy, pivRow, pivRow),
+                    onTable, table, "\\[E_{" + elims.length + "}=" + toTeX.fracMtx(elim) + "\\]");
+            }
+        }
+
+        helper.dom.addText("We have now produced an upper triangular matrix.\
+                        If we call this upper triangular matrix \\(U\\) \
+                        and the original matrix \\(A\\), \
+                        then we now know that", onTable, table, div);
+
+        let str = "\\begin{align*}";
+        for (let i = elims.length; i > 0; i--)
+            str += "E_{" + i + "} ";
+        str += "A &= U\\\\\\implies ~~~~~~~~~~~~~~~~~ A &= "
+        for (let i = 1; i < elims.length + 1; i++)
+            str += "E_{" + i + "}^{-1} ";
+        str += "U \\end{align*}"
+
+        helper.dom.addText(str, onTable, table, div);
+
+        helper.dom.addText("Thus, we calculate \\(L\\) by multiplying the \
+            inverses of the elimination matrices in order. \
+            First we must find their inverses by considering\
+            the opposite of each row operation that we performed.",
+            onTable, table, div);
+
+        str = "\\begin{align*}"
+        for (let i = 0; i < invs.length; i++) {
+            str += "E_{" + (i+1) + "}=" + toTeX.fracMtx(elims[i]) + 
+                    "~~&\\implies~~ E_{" + (i+1) + "}^{-1}=" +
+                    toTeX.fracMtx(invs[i]) + "\\\\";
+        }
+        str += "\\end{align*}"
+        helper.dom.addText(str, onTable, table, div);
+
+        helper.dom.addText("We then multiply them together.",
+            onTable, table, div);
+
+        function getTeXString(mtxArr) {
+            let res = ""
+            for (let i = 0; i < mtxArr.length; i++) {
+                res += toTeX.fracMtx(mtxArr[i]);
+            }
+            return res;
+        }
+
+        str = "\\begin{align*}&" + getTeXString(invs) + "\\\\";
+        while (invs.length > 1) {
+            let tmp = calc.fracMtxMult(invs[invs.length-1], invs[invs.length-2]);
+            invs.splice(invs.length - 2, 2, tmp);
+            str += "=~~ &" + getTeXString(invs) + "\\\\"
+        }
+        str += "\\end{align*}"
+        helper.dom.addText(str, onTable, table, div);
+
+        return div;
+        
+        // debug and finish this, it's very close to being done
+    },
+
+    mtxInverse: function () {
+
+    },
+
     rref: function() {
         let div = document.createElement("div");
         let table = null;
-        let onTable = false;
+        let onTable = [false];
 
         // addText("Remember that a matrix in reduced row echelon form " +
         //         "must satisfy the following conditions: "
@@ -575,7 +712,7 @@ let sbsNode =
         let cpy = helper.fracs.mtxFracCopy(activeProb.val1);
         
         // add the first row to the table
-        onTable = true;
+        onTable[0] = true;
         table = document.createElement("table");
         helper.dom.addHeadersToTable(table);
         helper.dom.addMtxRow(((cpy[0][0][0] != 0) ? toTeX.fracMtxWBox(cpy, 0, 0)
@@ -665,8 +802,8 @@ let sbsNode =
             pivRow++;
         }
 
-        if (onTable) {  // in case it ends in a table
-            onTable = false;
+        if (onTable[0]) {  // in case it ends in a table
+            onTable[0] = false;
             div.append(table);
         }
         helper.dom.addText("The matrix is now in reduced row echelon form.",
