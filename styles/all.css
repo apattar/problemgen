@@ -26,7 +26,12 @@ nav a:hover {
     color: white;
 }
 
-nav a.active {
+nav a.active, #about-link.active {
     background-color: black;
     color: white;
+}
+
+#about-link {
+    background-color: #74a6b8;
+    float: right;
 }

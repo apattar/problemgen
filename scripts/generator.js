@@ -9,43 +9,55 @@ let settings =
     maxDim: 3,
     computationLevel: "int",  // "frac", "sqrt", "complex" - TODO implement this
     genShortcut: "g",
-    solShortcut: "s"
+    solShortcut: "s",
+    sbsShortcut: "t",
 }
 
 
 let debugging =
 {
     printMtx: function(mtx) {
-        let m = mtx.length;
-        let n = mtx[0].length;
-
-        maxColWidths = [];
-        for (let i = 0; i < n; i++) maxColWidths.push(1);
-        
-        // sweep through the matrix once to get the widths
-        for (let i = 0; i < m; i++) {
-            for (let j = 0; j < n; j++) {
-                let width = ("" + mtx[i][j]).length;
-                if (width > maxColWidths[j])
-                    maxColWidths[j] = width;
-            }
-        }
- 
-        // then generate the string
         let str = "[\n";
-        for (let i = 0; i < m; i++) {
-            for (let j = 0; j < n; j++) {
-                let width = ("" + mtx[i][j]).length;
-                let diff = maxColWidths[j] - width;
-                for (let k = 0; k < diff; k++) str += " ";
-                str += mtx[i][j];
-                str += " ";
+        for (let row = 0; row < mtx.length; row++) {
+            for (let col = 0; col < mtx[row].length; col++) {
+                str += "\t" + mtx[row][col];
             }
             str += "\n"
         }
-        str += "]";
+        console.log(str + "]");
 
-        console.log(str)
+
+
+        // let m = mtx.length;
+        // let n = mtx[0].length;
+
+        // maxColWidths = [];
+        // for (let i = 0; i < n; i++) maxColWidths.push(1);
+        
+        // // sweep through the matrix once to get the widths
+        // for (let i = 0; i < m; i++) {
+        //     for (let j = 0; j < n; j++) {
+        //         let width = ("" + mtx[i][j]).length;
+        //         if (width > maxColWidths[j])
+        //             maxColWidths[j] = width;
+        //     }
+        // }
+ 
+        // // then generate the string
+        // let str = "[\n";
+        // for (let i = 0; i < m; i++) {
+        //     for (let j = 0; j < n; j++) {
+        //         let width = ("" + mtx[i][j]).length;
+        //         let diff = maxColWidths[j] - width;
+        //         for (let k = 0; k < diff; k++) str += " ";
+        //         str += mtx[i][j];
+        //         str += " ";
+        //     }
+        //     str += "\n"
+        // }
+        // str += "]";
+
+        // console.log(str)
     }
 }
 
@@ -101,6 +113,19 @@ let helper =
             for (let col = 0; col < mtx[0].length; col++) {
                 mtx[toChange][col] = helper.fracs.add(mtx[toChange][col], helper.fracs.multiply(mtx[toAdd][col], scaleFactorFrac));
             }
+        },
+    
+        getSub: function(mtx, n, rowToOmit, colToOmit) {
+            let sub = []
+            for (let srow = 0; srow < n; srow++) {
+                if (srow === rowToOmit) continue;
+                sub.push([]);
+                for (let scol = 0; scol < n; scol++) {
+                    if (scol === colToOmit) continue;
+                    sub[sub.length - 1].push(mtx[srow][scol]);
+                }
+            }
+            return sub;
         },
     },
 
@@ -209,6 +234,12 @@ let helper =
             
             helper.dom.addMtxRow(mtxTeX, table, elimMtxTeX);
         },
+    
+        addPara: function(div, text) {
+            let p = document.createElement("p");
+            p.append(document.createTextNode(text));
+            div.appendChild(p);
+        }
     },
 }
 
@@ -245,37 +276,6 @@ let calc =
         let res = 0;
         for (let i = 0; i < vec1.length; i++) {
             res += vec1[i] * vec2[i];
-        }
-        return res;
-    },
-
-    det: function(mtx, k) {
-        // assumes k >= 1 and matrix is valid; i.e. operation is defined
-        // the k by k principal submatrix of mtx will be considered
-        // uses the cofactor formula for the first row
-
-        // base case
-        if (k === 1) return mtx[0][0];
-
-        let res = 0;
-        let multiplier = 1; // doing this only works if even row (idxing by 1)
-        for (let i = 0; i < k; i++) {
-            // assemble the matrix that doesn't include that column or 1st row,
-            // and find its determinant
-            let sub = [];
-            for (let r = 1; r < k; r++) {
-                sub.push([]);
-                for (let c = 0; c < k; c++) {
-                    if (c === i) {
-                        c++;
-                        if (c === k) break;
-                    }
-                    sub[r-1].push(mtx[r][c]);
-                }
-            }
-            let subdet = calc.det(sub, k - 1);
-            res += multiplier * mtx[0][i] * subdet;
-            multiplier *= -1;
         }
         return res;
     },
@@ -380,6 +380,29 @@ let calc =
         return [L, cpy];
     },
 
+    det: function(mtx, k) {
+        // assumes k >= 1 and matrix is valid; i.e. operation is defined
+        // the k by k principal submatrix of mtx will be considered
+        // uses the cofactor formula for the first row
+
+        // TODO make this check rows and columns for zeros too?
+        let multiplier = 1; // doing this only works if even row (idxing by 1)
+
+        // base case
+        if (k === 1) return mtx[0][0];
+
+        let res = 0;
+        for (let col = 0; col < k; col++) {
+            // assemble the matrix that doesn't include that column or 1st row,
+            // and find its determinant
+            let sub = helper.matrices.getSub(mtx, k, 0, col);
+            let subdet = calc.det(sub, k - 1);
+            res += multiplier * mtx[0][col] * subdet;
+            multiplier *= -1;
+        }
+        return res;
+    },
+
     // maybe write different versions of rref for different number types?
     // this would be the integer version
     rref: function(mtx) {
@@ -472,17 +495,25 @@ let toTeX =
         return res.slice(0, res.length - 2) + "\\end{bmatrix}"
     },
 
+    fracMtxArr: function (mtxArr) {
+        let res = ""
+        for (let i = 0; i < mtxArr.length; i++) {
+            res += toTeX.fracMtx(mtxArr[i]);
+        }
+        return res;
+    },
+
     fracMtxWBox: function(mtx, boxRow, boxCol) {
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < mtx.length; i++) {
             for (let j = 0; j < mtx[i].length - 1; j++) {
                 if (i === boxRow && j === boxCol)
-                    res += "\\fbox{" + toTeX.frac(mtx[i][j]) + "}&";
+                    res += "\\fbox{\\(" + toTeX.frac(mtx[i][j]) + "\\)}&";
                 else res += toTeX.frac(mtx[i][j]) + "&";
             }
             if (i === boxRow && mtx[i].length - 1 === boxCol) {
-                res += "\\fbox{" +
-                       toTeX.frac(mtx[i][mtx[i].length - 1]) + "}\\\\";
+                res += "\\fbox{\\(" +
+                       toTeX.frac(mtx[i][mtx[i].length - 1]) + "\\)}\\\\";
             } else
                 res += toTeX.frac(mtx[i][mtx[i].length - 1]) + "\\\\";
         }
@@ -652,11 +683,12 @@ let sbsNode =
 
         helper.dom.addText(str, onTable, table, div);
 
-        helper.dom.addText("Thus, we calculate \\(L\\) by multiplying the \
-            inverses of the elimination matrices in order. \
-            First we must find their inverses by considering\
-            the opposite of each row operation that we performed.",
-            onTable, table, div);
+        helper.dom.addText("Thus, we can find \\(L\\) by " +
+            ((invs.length > 1) ? "first finding the inverses of \
+            the elimination matrices" : "finding the inverse of \
+            the elimination matrix") + ", by considering the opposite of \
+            the row operation" + ((invs.length > 1) ? "s" : "") + 
+            " we performed.", onTable, table, div);
 
         str = "\\begin{align*}"
         for (let i = 0; i < invs.length; i++) {
@@ -667,29 +699,126 @@ let sbsNode =
         str += "\\end{align*}"
         helper.dom.addText(str, onTable, table, div);
 
-        helper.dom.addText("We then multiply them together.",
-            onTable, table, div);
+        if (invs.length > 1) {
+            helper.dom.addText("We calculate \\(L\\) by multiplying the \
+                inverses of the elimination matrices in order, all of which \
+                are lower triangular.",
+                onTable, table, div);
 
-        function getTeXString(mtxArr) {
-            let res = ""
-            for (let i = 0; i < mtxArr.length; i++) {
-                res += toTeX.fracMtx(mtxArr[i]);
+            str = "\\begin{align*}&" + toTeX.fracMtxArr(invs) + "\\\\";
+            while (invs.length > 1) {
+                let tmp = calc.fracMtxMult(invs[invs.length-2], invs[invs.length-1]);
+                invs.splice(invs.length - 2, 2, tmp);
+                str += "=~~ &" + toTeX.fracMtxArr(invs) + "\\\\"
             }
-            return res;
+            str += "\\end{align*}"
+            helper.dom.addText(str, onTable, table, div);
         }
 
-        str = "\\begin{align*}&" + getTeXString(invs) + "\\\\";
-        while (invs.length > 1) {
-            let tmp = calc.fracMtxMult(invs[invs.length-1], invs[invs.length-2]);
-            invs.splice(invs.length - 2, 2, tmp);
-            str += "=~~ &" + getTeXString(invs) + "\\\\"
-        }
-        str += "\\end{align*}"
-        helper.dom.addText(str, onTable, table, div);
+        helper.dom.addText("Our result is a lower triangular matrix. Thus, \
+            our final answer is as follows. We can check our work by \
+            multiplying \\(L\\) and \\(U\\) and noting that the result is \
+            the original matrix \\(A\\), as expected.", onTable, table, div);
+
+        helper.dom.addText("\\[L=" + toTeX.fracMtx(invs[0]) + 
+                           ",~~ U=" + toTeX.fracMtx(cpy) + "\\]",
+                           onTable, table, div);
 
         return div;
         
         // debug and finish this, it's very close to being done
+    },
+
+    det: function() {
+        let div = document.createElement("div");
+        
+        let M = activeProb.val1;
+        let n = M.length;
+        if (n === 2) {
+            helper.dom.addPara(div, "We use the formula for \\(2 \\times 2\\) \
+            determinants:");
+            helper.dom.addPara(div, "\\begin{align*} \\det\\left(" + 
+                toTeX.mtx(M) + "\\right) ~~&=~~ (" +
+                (M[0][0]) + ")(" + (M[1][1]) + ") - (" +
+                (M[0][1]) + ")(" + (M[1][0]) + ")\\\\ &=~~ " +
+                (M[0][0] * M[1][1]) + ((M[0][1]*M[1][0] < 0) ? " + " : " - ") +
+                Math.abs(M[0][1] * M[1][0]) + 
+                "\\\\ &=~~" + calc.det(M, n) + "\\end{align*}");
+
+        } else {
+            helper.dom.addPara(div, "We use cofactors, expanding along \
+                the " + "first row" + " of the matrix:");
+            
+            // TODO check all the rows and all the columns to find one with
+            // the most zeros, then expand along that one
+            let row = 0;    // this will represent the row along which to expand
+            let subdets = []   // will store the submatrix determinants,
+                               // to prevent too much unnecessary calculation
+
+            // first simplification
+
+            let str = "\\begin{align*} \\det\\left(" + toTeX.mtx(M) +
+                "\\right) ~~&=~~~~~~~";
+            for (let col = 0; col < n; col++) {
+                str += "(-1)^{(" + (row+1) + "+" + (col+1) +
+                    ")}(" + M[row][col] + ") \\cdot \\det\\left(";
+                let sub = helper.matrices.getSub(M, n, row, col);
+                subdets.push(calc.det(sub, n - 1));
+                str += toTeX.mtx(sub) + "\\right)\\\\ &~~~~~+~~ ";
+            }
+            str = str.slice(0, str.length - 13);
+            str += "\\end{align*}";
+            helper.dom.addPara(div, str);
+
+            // TODO cool exercise:
+            // have buttons that you can click to show the step-by-step
+            // computations of the recursive determinants
+            // one option is to put them both in a container
+            // and make them inline
+            // have them link to the sbs page and run a script?
+            // you could use floats?
+
+            // creates reference to the link. Can't use addPara method
+            let p = document.createElement("p");
+            let t1 = document.createTextNode("We will omit the \
+                calculations of the determinants of each of the submatrices. \
+                You can see their step-by-step calculations by plugging them \
+                into ");
+            let a = document.createElement("a");
+            a.appendChild(document.createTextNode("this step-by-step \
+                calculator"));
+            a.href = "stepbystep.html";  // TODO change this link
+            a.setAttribute("target", "_blank");
+            let t2 = document.createTextNode(" (clicking the link will open \
+                another tab). Continuing to simplify, we get:")
+            p.appendChild(t1); p.appendChild(a); p.appendChild(t2);
+            div.appendChild(p);
+            
+            // second simplification
+
+            str = "\\begin{align*}&";
+            for (let col = 0; col < n; col++) {
+                str += "(" + ((Math.pow(-1,row+col+2)) * M[row][col]) +
+                        ")(" + subdets[col] + ") + ";
+            }
+            str = str.slice(0, str.length - 3) + "\\\\";
+            
+            // third simplification
+
+            str += " =~~ &";
+            for (let col = 0; col < n; col++) {
+                str += "(" + (Math.pow(-1,row+col+2)) * M[row][col] * 
+                    subdets[col] + ") + ";
+            }
+            str = str.slice(0, str.length - 2) + "\\\\";
+
+            // fourth simplification
+            
+            str += " =~~ &" + solText.textContent + "\\\\\\end{align*}";
+            helper.dom.addPara(div, str);
+        }
+
+        return div;
     },
 
     mtxInverse: function () {
@@ -829,17 +958,6 @@ let activeProb = {
     val2: null   // will store second problem item repr. (if applicable)
 };
 
-let genSqMtx = function() {
-    let n = helper.randint(settings.minDim, settings.maxDim);
-    activeProb.val1 = generate.mtx(n, n);
-
-    genText.textContent = "\\[" + toTeX.mtx(activeProb.val1) + "\\]";
-    solText.textContent = "";
-
-    MathJax.typesetClear(genText);
-    MathJax.typeset([genText]);
-}
-
 let genAndShow =
 {
     crossProduct: function() {
@@ -886,17 +1004,29 @@ let genAndShow =
             return true;
         }
 
-        let test = generate.mtx(n, n);
-        while (!works(test)) {
+        let candidate = generate.mtx(n, n);
+        while (!works(candidate)) {
             console.log("Found a matrix for which there does not exist a pure \
-                         LU decomposition: " + toTeX.mtx(test));
-            test = generate.mtx(n, n);
+                         LU decomposition: " + toTeX.mtx(candidate));
+            candidate = generate.mtx(n, n);
         }
 
-        activeProb.val1 = test;
-        genText.textContent = "\\[" + toTeX.mtx(test) + "\\]";
+        activeProb.val1 = candidate;
+        genText.textContent = "\\[" + toTeX.mtx(candidate) + "\\]";
     },
-    mtxInverse: genSqMtx,
+
+    det: function() {
+        let n = helper.randint(settings.minDim, settings.maxDim);
+        activeProb.val1 = generate.mtx(n, n);
+
+        genText.textContent = "\\[" + toTeX.mtx(activeProb.val1) + "\\]";
+        solText.textContent = "";
+
+        MathJax.typesetClear(genText);
+        MathJax.typeset([genText]);
+    },
+
+    mtxInverse: function() {genAndShow.det()},   // this has to be actually invertible
 
     rref: function() {
         // TODO why don't you make it so that a fourth of the time the
@@ -946,6 +1076,11 @@ let showSolution =
                               ",~~ U=" + toTeX.fracMtx(decomp[1]) + "\\]"
     },
 
+    det: function() {
+        solText.textContent = "\\[" + (calc.det(activeProb.val1, 
+            activeProb.val1.length)) + "\\]"
+    },
+
     rref: function() {
         let sol = calc.rref(activeProb.val1);
         solText.textContent = "\\[" + toTeX.fracMtx(sol) + "\\]";
@@ -980,6 +1115,10 @@ window.onkeydown = function(e) {
             break;
         case settings.solShortcut:
             solButton.click();
+            break;
+        case settings.sbsShortcut:
+            solButton.click();
+            sbsButton.click();
             break;
     }
 }

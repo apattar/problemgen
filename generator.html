@@ -10,7 +10,7 @@
 </head>
 <body>
     <nav>
-        <a href="index.html">Home</a><a href="about.html">About</a><a class="active">Generator</a>
+        <a href="index.html">Home</a><a href="about.html" id="about-link">About</a><a class="active">Generator</a><a href="stepbystep.html">Step-By-Step Calculator</a>
     </nav>
 
     <main id="main">
@@ -22,6 +22,7 @@
                 <button id="mtxMult">Matrix Multiplication</button>
                 <!-- <button id="gaussElim">Gaussian Elimination</button> -->
                 <button id="luDecomp">LU Decomposition</button>
+                <button id="det">Matrix Determinant</button>
                 <button id="mtxInverse">Gauss-Jordan Inverse</button>
                 <button id="rref">RREF</button>
             <h2>Multivariable Calculus</h2>
@@ -50,7 +51,8 @@
         <section id="options-sidebar" class="sidebar">
             <h2>Keyboard Shortcuts</h2>
                 <p>Generate: <code>g</code></p>
-                <p>Show Solution: <code>s</code></p>
+                <p>Show solution: <code>s</code></p>
+                <p>See step-by-step solution: <code>t</code></p>
             <button id="options-button" class="aux-buttons shadowed-button">Options</button>
         </section>
     </main>
