@@ -63,6 +63,35 @@ let helper =
             }
             return sub;
         },
+
+        isUpperTriangular: function(mtx) {
+            for (let i = 0; i < mtx.length; i++)
+                for (let j = 0; j < i; j++)
+                    if (mtx[i][j]) return false;
+            return true;
+        },
+
+        // returns the row or col with the most zeros,
+        // a boolean value representing if it's a col,
+        // and a boolean value representing if they're all zeros
+        mostZeros: function(mtx, n) {
+            let row0s = {}; let col0s = {};
+            for (let i = 0; i < n; i++) {row0s[i] = 0; col0s[i] = 0;}
+            let maxRow = 0; maxCol = 0;
+
+            for (let row = 0; row < n; row++)
+                for (let col = 0; col < n; col++)
+                    if (!mtx[row][col]) {
+                        row0s[row]++; col0s[col]++;
+                        if (row0s[row] > row0s[maxRow]) maxRow = row;
+                        if (col0s[col] > col0s[maxCol]) maxCol = col;
+                    }
+            
+            if (row0s[maxRow] === n) return [maxRow, false, true];
+            if (col0s[maxCol] === n) return [maxCol, true, true];
+            if (row0s[maxRow] < col0s[maxCol]) return [maxCol, true, false];
+            return [maxRow, false, false];
+        }
     },
 
     fracs: {        

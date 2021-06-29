@@ -44,6 +44,35 @@ let toTeX =
         return res.slice(0, res.length - 2) + "\\end{bmatrix}"
     },
 
+    prodSum: function(arr, subtract) {
+        res = "";
+        for (let i = 0; i < arr.length; i++) {
+            res += "("
+            for (let j = 0; j < arr[i].length; j++)
+                res += arr[i][j] + ")(";
+            res = res.slice(0, res.length - 1) + ((subtract) ? " - " : " + ");
+        }
+        return res.slice(0, res.length - 3);
+    },
+
+    sum: function(arr) {    // you can multiply numbers by -1 to subtract
+        // assumes arr.length >= 1
+        if (arr.length === 1) return "(" + arr[0] + ")";
+        res = arr[0] + ((arr[1] < 0) ? " - " : " + ");
+        for (let i = 1; i < arr.length - 1; i++)
+            res += Math.abs(arr[i]) + ((arr[i+1] < 0) ? " - " : " + ");
+        return res + Math.abs(arr[arr.length - 1]);
+    },
+
+    rowop: function(modifiedRow, modifierRow, coeffFrac) {
+        let res = "\\text{R}" + (modifiedRow + 1); res += "=" + res;
+        let coeffTeX = toTeX.frac(coeffFrac);
+        if (coeffTeX === "1") res += "+";
+        else if (coeffTeX === "-1") res += "-";
+        else res += ((coeffTeX[0] === "-") ? "" : "+") + coeffTeX;
+        return res + "\\text{R}" + (modifierRow + 1);
+    },
+
     mtx: function(mtx) {
         // REQUIRES: input is 2D array, nonempty and no empty columns
         let res = "\\begin{bmatrix}"

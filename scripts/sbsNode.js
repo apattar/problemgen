@@ -6,30 +6,35 @@ let sbsNode =
 
         let text = "We find the cross product as follows:\\begin{align*}";
 
-        text += toTeX.vecComma(activeProb.val1) + " \\times " + toTeX.vecComma(activeProb.val2);
-        text += " ~~&=~~ \\begin{vmatrix}\\hat{\\mathbf{i}}&\
-            \\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\"
+        text += toTeX.vecComma(x) + " \\times " + toTeX.vecComma(y);
+        text += " ~~&=~~ \\begin{vmatrix}\
+            \\hat{\\mathbf{i}}&\\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\"
             + x[0] + "&" + x[1] + "&" + x[2] + "\\\\"
             + y[0] + "&" + y[1] + "&" + y[2] + "\\end{vmatrix}\\\\";
-        text += "~~&=~~ \\langle " + "(" + x[1] + ")" + "(" + y[2] + ")" + " - " + "(" + x[2] + ")" + "(" + y[1] + ")" + ",~~ " +
-                      "(" + x[2] + ")" + "(" + y[0] + ")" + " - " + "(" + x[0] + ")" + "(" + y[2] + ")" + ",~~ " +
-                      "(" + x[0] + ")" + "(" + y[1] + ")" + " - " + "(" + x[1] + ")" + "(" + y[0] + ")" + "\\rangle\\\\";
-        text += "~~&=~~ \\langle " + (x[1] * y[2]) + (((x[2] * y[1]) < 0) ? " + " : " - ") + Math.abs(x[2] * y[1]) + ",~~ " +
-                        (x[2] * y[0]) + (((x[0] * y[2]) < 0) ? " + " : " - ") + Math.abs(x[0] * y[2]) + ",~~ " +
-                        (x[0] * y[1]) + (((x[1] * y[0]) < 0) ? " + " : " - ") + Math.abs(x[1] * y[0]) + "\\rangle\\\\";
-        text += "~~&=~~ " + toTeX.vecComma(calc.crossProduct(activeProb.val1, activeProb.val2)) + "\\\\\\\\\\end{align*}";
+            
+        text += "~~&=~~ \\langle " +
+            toTeX.prodSum([[x[1], y[2]], [x[2], y[1]]], true) + ",~~ " +
+            toTeX.prodSum([[x[2], y[0]], [x[0], y[2]]], true) + ",~~ " +
+            toTeX.prodSum([[x[0], y[1]], [x[1], y[0]]], true) + "\\rangle\\\\";
+            
+        text += "~~&=~~ \\langle " +
+            toTeX.sum([x[1] * y[2], -x[2] * y[1]]) + ",~~ " +
+            toTeX.sum([x[2] * y[0], -x[0] * y[2]]) + ",~~ " +
+            toTeX.sum([x[0] * y[1], -x[1] * y[0]]) + "\\rangle\\\\";
+        text += "~~&=~~ " + solText.textContent + "\\end{align*}";
 
-        text += "To get this expression, we used the following cross product formula:\
-        \\[\\left\\langle{}x_1,x_2,x_3\\right\\rangle \\times \
-        \\left\\langle{}y_1,y_2,y_3\\right\\rangle = \
-        \\left\\langle x_2y_3 - x_3y_2,~~ x_3y_1 - x_1y_3,~~ x_1y_2 - x_2y_1\\right\\rangle\\]\
-        As a shortcut, we can derive this formula by thinking of it as the determinant of a matrix,\
-        assembled as follows:\
-        \\[\\left\\langle{}x_1,x_2,x_3\\right\\rangle \\times \
-        \\left\\langle{}y_1,y_2,y_3\\right\\rangle = \
-        \\begin{vmatrix}\\hat{\\mathbf{i}}&\
-        \\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\\
-        x_1&x_2&x_3\\\\y_1&y_2&y_3\\end{vmatrix}\\]";
+        // // TODO does this really need to be here? If not, remove
+        // text += "To get this expression, we used the following cross product formula:\
+        // \\[\\left\\langle{}x_1,x_2,x_3\\right\\rangle \\times \
+        // \\left\\langle{}y_1,y_2,y_3\\right\\rangle = \
+        // \\left\\langle x_2y_3 - x_3y_2,~~ x_3y_1 - x_1y_3,~~ x_1y_2 - x_2y_1\\right\\rangle\\]\
+        // As a shortcut, we can derive this formula by thinking of it as the determinant of a matrix,\
+        // assembled as follows:\
+        // \\[\\left\\langle{}x_1,x_2,x_3\\right\\rangle \\times \
+        // \\left\\langle{}y_1,y_2,y_3\\right\\rangle = \
+        // \\begin{vmatrix}\\hat{\\mathbf{i}}&\
+        // \\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\\
+        // x_1&x_2&x_3\\\\y_1&y_2&y_3\\end{vmatrix}\\]";
 
         let div = document.createElement("div");
         div.appendChild(document.createTextNode(text));
@@ -46,11 +51,24 @@ let sbsNode =
     },
 
     mtxMult: function() {
+        let div = document.createElement("div");
 
+        helper.dom.addPara(div, "First, ")
     },
 
     luDecomp: function () {
         let div = document.createElement("div");
+
+        // handle for if the matrix is already upper triangular
+        if (helper.matrices.isUpperTriangular(activeProb.val1)) {
+            helper.dom.addPara(div, "Notice that the matrix is already upper \
+                triangular. This means that the only possible lower triangular \
+                matrix that it can be multiplied by to return itself is the \
+                identity matrix, which is shown as \\(L\\) in the solution \
+                box.");
+            return div;
+        }
+
         let table = null;
         let onTable = [false];
 
@@ -72,8 +90,6 @@ let sbsNode =
                              : toTeX.fracMtx(cpy)), table, true);
 
         let n = cpy.length;
-        // let L = helper.matrices.fracIdentity(n);        // acts as accumulator
-        //     // you have to multiply new ones coming from the right
         let elims = []  // stores the elimination matrices
                         // in order of application
         let invs = []   // stores the inverses of the matrices in elims
@@ -90,8 +106,7 @@ let sbsNode =
                 let negMultiplier = helper.fracs.multiply([-1,1], multiplier);
                 helper.matrices.rowop(cpy, currRow, pivRow, negMultiplier);
 
-                // // find the inverse of the elimination matrix corresponding
-                // // to that row operation; multiply it into the accumulator
+                // store elimination matrix and its inverse
                 let elim = helper.matrices.fracIdentity(n);
                 elim[currRow][pivRow] = negMultiplier;
                 elims.push(elim);
@@ -99,16 +114,11 @@ let sbsNode =
                 inv[currRow][pivRow] = multiplier;
                 invs.push(inv);
 
-                helper.dom.addRowOp("\\[\\text{R}" + (currRow + 1) + 
-                    " = \\text{R}" + (currRow + 1) +
-                    ((Math.abs(negMultiplier[0]) === 1 && negMultiplier[1] === 1) ?
-                    ((negMultiplier[0] === 1) ? " + " : " - ") :
-                    (((negMultiplier[0] < 0) ? " - " : " + ") +
-                    toTeX.frac([Math.abs(negMultiplier[0]), negMultiplier[1]]))) +
-                    "\\text{R}" + (pivRow + 1)
-                    + "\\]",
-                    toTeX.fracMtxWBox(cpy, pivRow, pivRow),
-                    onTable, table, "\\[E_{" + elims.length + "}=" + toTeX.fracMtx(elim) + "\\]");
+                helper.dom.addRowOp(
+                    "\\[" + toTeX.rowop(currRow, pivRow, negMultiplier) + "\\]",
+                    toTeX.fracMtxWBox(cpy, pivRow, pivRow), onTable, table,
+                    "\\[E_{" + elims.length + "}=" +
+                    toTeX.fracMtx(elim) + "\\]");
             }
         }
 
@@ -124,7 +134,6 @@ let sbsNode =
         for (let i = 1; i < elims.length + 1; i++)
             str += "E_{" + i + "}^{-1} ";
         str += "U \\end{align*}"
-
         helper.dom.addText(str, onTable, table, div);
 
         helper.dom.addText("Thus, we can find \\(L\\) by " +
@@ -169,8 +178,6 @@ let sbsNode =
                            onTable, table, div);
 
         return div;
-        
-        // debug and finish this, it's very close to being done
     },
 
     det: function() {
@@ -178,37 +185,57 @@ let sbsNode =
         
         let M = activeProb.val1;
         let n = M.length;
+        let zerosInfo = helper.matrices.mostZeros(M, n);
+        if (zerosInfo[2]) {
+            helper.dom.addPara(div, "Since " +
+                (zerosInfo[1] ? "column " : "row ") +
+                (zerosInfo[0] + 1) + " of the matrix has all zeros, \
+                the determinant of the entire matrix is zero.");
+            return div;
+        }
+
         if (n === 2) {
             helper.dom.addPara(div, "We use the formula for \\(2 \\times 2\\) \
             determinants:");
-            helper.dom.addPara(div, "\\begin{align*} \\det\\left(" + 
-                toTeX.mtx(M) + "\\right) ~~&=~~ (" +
-                (M[0][0]) + ")(" + (M[1][1]) + ") - (" +
-                (M[0][1]) + ")(" + (M[1][0]) + ")\\\\ &=~~ " +
-                (M[0][0] * M[1][1]) + ((M[0][1]*M[1][0] < 0) ? " + " : " - ") +
-                Math.abs(M[0][1] * M[1][0]) + 
-                "\\\\ &=~~" + calc.det(M, n) + "\\end{align*}");
+            helper.dom.addPara(div, "\\begin{align*}" +
+                "\\det\\left(" + toTeX.mtx(M) + "\\right) ~~&=~~ " +
+                toTeX.prodSum([[M[0][0], M[1][1]], [M[0][1], M[1][0]]], true)
+                + "\\\\ &=~~ " +
+                toTeX.sum([M[0][0]*M[1][1], -M[0][1]*M[1][0]])
+                + "\\\\ &=~~" + solText.textContent + "\\end{align*}");
 
         } else {
-            helper.dom.addPara(div, "We use cofactors, expanding along \
-                the " + "first row" + " of the matrix:");
-            
-            // TODO check all the rows and all the columns to find one with
-            // the most zeros, then expand along that one
-            let row = 0;    // this will represent the row along which to expand
             let subdets = []   // will store the submatrix determinants,
                                // to prevent too much unnecessary calculation
+
+            let isCol = zerosInfo[1];
+            let expandAlong = zerosInfo[0]
+            helper.dom.addPara(div, "We use cofactors, expanding along " +
+                (isCol ? "column " : "row ") + (expandAlong + 1) +
+                " of the matrix" + ((!isCol && !expandAlong) ? "" :
+                " (since it has the most zeros, to simplify the calculation)")
+                + ":");
 
             // first simplification
 
             let str = "\\begin{align*} \\det\\left(" + toTeX.mtx(M) +
                 "\\right) ~~&=~~~~~~~";
-            for (let col = 0; col < n; col++) {
-                str += "(-1)^{(" + (row+1) + "+" + (col+1) +
-                    ")}(" + M[row][col] + ") \\cdot \\det\\left(";
-                let sub = helper.matrices.getSub(M, n, row, col);
-                subdets.push(calc.det(sub, n - 1));
-                str += toTeX.mtx(sub) + "\\right)\\\\ &~~~~~+~~ ";
+            if (isCol) {
+                for (let row = 0; row < n; row++) {
+                    str += "(-1)^{(" + (row+1) + "+" + (expandAlong+1) +
+                        ")}(" + M[row][expandAlong] + ") \\cdot \\det\\left(";
+                    let sub = helper.matrices.getSub(M, n, row, expandAlong);
+                    subdets.push(calc.det(sub, n - 1));
+                    str += toTeX.mtx(sub) + "\\right)\\\\ &~~~~~+~~ ";
+                }
+            } else {
+                for (let col = 0; col < n; col++) {
+                    str += "(-1)^{(" + (expandAlong+1) + "+" + (col+1) +
+                        ")}(" + M[expandAlong][col] + ") \\cdot \\det\\left(";
+                    let sub = helper.matrices.getSub(M, n, expandAlong, col);
+                    subdets.push(calc.det(sub, n - 1));
+                    str += toTeX.mtx(sub) + "\\right)\\\\ &~~~~~+~~ ";
+                }
             }
             str = str.slice(0, str.length - 13);
             str += "\\end{align*}";
@@ -241,20 +268,27 @@ let sbsNode =
             // second simplification
 
             str = "\\begin{align*}&";
-            for (let col = 0; col < n; col++) {
-                str += "(" + ((Math.pow(-1,row+col+2)) * M[row][col]) +
-                        ")(" + subdets[col] + ") + ";
+            let prodSumArr = []
+            for (let i = 0; i < n; i++) {
+                let curr = (isCol) ? M[i][expandAlong] : M[expandAlong][i];
+                if (curr)
+                    prodSumArr.push([(Math.pow(-1,expandAlong+i+2)) * curr,
+                                     subdets[i]]);
+                else prodSumArr.push([0]);
             }
-            str = str.slice(0, str.length - 3) + "\\\\";
+            str += toTeX.prodSum(prodSumArr) + "\\\\";
             
             // third simplification
 
             str += " =~~ &";
-            for (let col = 0; col < n; col++) {
-                str += "(" + (Math.pow(-1,row+col+2)) * M[row][col] * 
-                    subdets[col] + ") + ";
+            let sumArr = []
+            for (let i = 0; i < n; i++) {
+                let curr = (isCol) ? M[i][expandAlong] : M[expandAlong][i];
+                if (curr)
+                    sumArr.push([(Math.pow(-1,expandAlong+i+2)) * curr *
+                                 subdets[i]]);
             }
-            str = str.slice(0, str.length - 2) + "\\\\";
+            str += toTeX.sum(sumArr) + "\\\\";
 
             // fourth simplification
             
@@ -274,9 +308,6 @@ let sbsNode =
         let table = null;
         let onTable = [false];
 
-        // addText("Remember that a matrix in reduced row echelon form " +
-        //         "must satisfy the following conditions: "
-
         helper.dom.addText("To put the matrix into reduced row " +
                 "echelon form, we perform the following row operations. " +
                 "Where applicable, the current pivot being considered \
@@ -291,19 +322,10 @@ let sbsNode =
         helper.dom.addMtxRow(((cpy[0][0][0] != 0) ? toTeX.fracMtxWBox(cpy, 0, 0)
                              : toTeX.fracMtx(cpy)), table);
         
-
-        // general strategy: locate pivot, one-ify pivot row, then eliminate
-        // the choices you have for making computations easier are:
-            // choosing when to one-ify. You can do that whenever.
-            // swapping rows (unnecessarily). This is not something a human might be able to see.
-
         pivCol = 0; pivRow = 0;
         while (pivCol < cpy[0].length && pivRow < cpy.length) {
             // make sure pivot is nonzero
             if (cpy[pivRow][pivCol][0] === 0) {
-                // look for a nonzero under pivot, swap if found.
-                // if there are none, move on to the next column
-
                 let rowToSwap = pivRow + 1;
                 while (rowToSwap < cpy.length &&
                        cpy[rowToSwap][pivCol][0] === 0)
@@ -313,15 +335,15 @@ let sbsNode =
                     pivCol++; continue;
                 }
                 
-                    helper.matrices.swap(cpy, pivRow, rowToSwap);
-                    helper.dom.addRowOp("\\[\\text{Swap } \\text{R}" + (pivRow + 1) +
-                             " \\text{ and } \\text{R}" + (rowToSwap + 1) + "\\]",
-                             toTeX.fracMtxWBox(cpy, pivRow, pivCol), onTable, table);
+                helper.matrices.swap(cpy, pivRow, rowToSwap);
+                helper.dom.addRowOp("\\[\\text{Swap } \\text{R}" + (pivRow + 1)
+                    + " \\text{ and } \\text{R}" + (rowToSwap + 1) + "\\]",
+                    toTeX.fracMtxWBox(cpy, pivRow, pivCol), onTable, table);
             }
             
+            // one-ify the pivot row
             pivot = cpy[pivRow][pivCol];
             pivRecip = helper.fracs.simplify([pivot[1], pivot[0]]);
-            // one-ify the pivot row
             helper.matrices.multrow(cpy, pivRow, pivRecip);
             helper.dom.addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
                      ((pivRecip[0] === 1 && pivRecip[1] === 1) ? "" :
@@ -334,18 +356,11 @@ let sbsNode =
                 if (cpy[currRow][pivCol][0] !== 0) {
                     // gotta make it zero, using a row operation
                     let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
-                    // let scalar = helper.fracs.multiply(negB, pivRecip);
                     helper.matrices.rowop(cpy, currRow, pivRow, negB);
-                    helper.dom.addRowOp("\\[\\text{R}" + (currRow + 1) + 
-                             " = \\text{R}" + (currRow + 1) +
-                             ((Math.abs(negB[0]) === 1 && negB[1] === 1) ?
-                             ((negB[0] === 1) ? " + " : " - ") :
-                             (((negB[0] < 0) ? " - " : " + ") +
-                             toTeX.frac([Math.abs(negB[0]), negB[1]]))) +
-                             "\\text{R}" + (pivRow + 1)
-                             + "\\]",
-                             toTeX.fracMtxWBox(cpy, pivRow, pivCol),
-                             onTable, table);
+                    helper.dom.addRowOp(
+                        "\\[" + toTeX.rowop(currRow, pivRow, negB) + "\\]",
+                        toTeX.fracMtxWBox(cpy, pivRow, pivCol),
+                        onTable, table);
                 }
                 currRow++;
             }
@@ -356,16 +371,11 @@ let sbsNode =
                 if (cpy[currRow][pivCol][0] !== 0) {
                     // gotta make it zero, using a row operation
                     let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
-                    // let scalar = helper.fracs.multiply(negB, pivRecip);
                     helper.matrices.rowop(cpy, currRow, pivRow, negB);
-                    helper.dom.addRowOp("\\[\\text{R}" + (currRow + 1) + 
-                             " = \\text{R}" + (currRow + 1) +
-                             ((negB[0] < 0) ? " - " : " + ") +
-                             toTeX.frac([Math.abs(negB[0]), negB[1]]) +
-                             "\\text{R}" + (pivRow + 1)
-                             + "\\]",
-                             toTeX.fracMtxWBox(cpy, pivRow, pivCol),
-                             onTable, table);
+                    helper.dom.addRowOp(
+                        "\\[" + toTeX.rowop(currRow, pivRow, negB) + "\\]",
+                        toTeX.fracMtxWBox(cpy, pivRow, pivCol),
+                        onTable, table);
                 }
                 currRow--;
             }
