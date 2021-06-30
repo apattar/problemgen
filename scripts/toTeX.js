@@ -27,6 +27,22 @@ let toTeX =
         return res;
     },
 
+    augFracMtx: function(mtx1, mtx2) {
+        let res = "\\[\\left[\\begin{matrix}";
+        for (let i = 0; i < mtx1.length; i++) {
+            for (let j = 0; j < mtx1[i].length - 1; j++)
+                res += toTeX.frac(mtx1[i][j]) + "&"
+            res += toTeX.frac(mtx1[i][mtx1[i].length - 1]) + "\\\\";
+        }
+        res += "\\end{matrix}\\left|\\,\\begin{matrix}";
+        for (let i = 0; i < mtx2.length; i++) {
+            for (let j = 0; j < mtx2[i].length - 1; j++)
+                res += toTeX.frac(mtx2[i][j]) + "&"
+            res += toTeX.frac(mtx2[i][mtx2[i].length - 1]) + "\\\\";
+        }
+        return res + "\\end{matrix}\\right.\\right]\\]";
+    },
+
     fracMtxWBox: function(mtx, boxRow, boxCol) {
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < mtx.length; i++) {

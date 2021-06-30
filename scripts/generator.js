@@ -125,11 +125,7 @@ let genAndShow =
         }
 
         let candidate = generate.mtx(n, n);
-        while (!works(candidate)) {
-            console.log("Found a matrix for which there does not exist a pure \
-                         LU decomposition: " + toTeX.mtx(candidate));
-            candidate = generate.mtx(n, n);
-        }
+        while (!works(candidate)) candidate = generate.mtx(n, n);
 
         activeProb.val1 = candidate;
         genText.textContent = "\\[" + toTeX.mtx(candidate) + "\\]";
@@ -146,7 +142,15 @@ let genAndShow =
         MathJax.typeset([genText]);
     },
 
-    mtxInverse: function() {genAndShow.det()},   // this has to be actually invertible
+    mtxInverse: function() {
+        let n = helper.randint(settings.minDim, settings.maxDim);
+
+        let candidate = generate.mtx(n, n);
+        while (!calc.det(candidate, n)) candidate = generate.mtx(n, n);
+
+        activeProb.val1 = candidate;
+        genText.textContent = "\\[" + toTeX.mtx(candidate) + "\\]";
+    },
 
     rref: function() {
         // TODO why don't you make it so that a fourth of the time the
@@ -197,6 +201,11 @@ let showSolution =
     det: function() {
         solText.textContent = "\\[" + (calc.det(activeProb.val1, 
             activeProb.val1.length)) + "\\]"
+    },
+
+    mtxInverse: function() {
+        solText.textContent =
+            "\\[" + toTeX.fracMtx(calc.mtxInverse(activeProb.val1)) + "\\]"
     },
 
     rref: function() {

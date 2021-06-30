@@ -299,8 +299,92 @@ let sbsNode =
         return div;
     },
 
-    mtxInverse: function () {
+    mtxInverse: function() {
+        let div = document.createElement("div");
+        let mtx = activeProb.val1;
+        let n = mtx.length;
 
+        // otherwise, use gauss-jordan
+        let cpy = helper.fracs.mtxFracCopy(mtx);
+        let inv = helper.matrices.fracIdentity(n);
+
+        helper.dom.addPara(div, "We build the augmented matrix consisting of \
+            the original matrix and the \\(" + n + " \\times " + n + "\\) \
+            identity matrix, and perform the following row operations to \
+            convert the left half into the identity matrix:");
+
+        // add the first row to the table
+        let onTable = [true];
+        let table = document.createElement("table");
+        helper.dom.addHeadersToTable(table);
+        helper.dom.addMtxRow(toTeX.augFracMtx(cpy, inv), table);
+
+        for (let pivRow = 0; pivRow < n; pivRow++) {
+            // swap rows if pivot is zero
+            if (cpy[pivRow][pivRow][0] === 0) {
+                let rowToSwap = 0;
+                while (cpy[rowToSwap][pivRow][0] === 0) rowToSwap++;
+                // since matrix is invertible, we're guaranteed
+                // to find a nonzero entry, so this is safe
+                helper.matrices.swap(cpy, pivRow, rowToSwap);
+                helper.matrices.swap(inv, pivRow, rowToSwap);
+                helper.dom.addRowOp("\\[\\text{Swap } \\text{R}" + (pivRow + 1)
+                    + " \\text{ and } \\text{R}" + (rowToSwap + 1) + "\\]",
+                    toTeX.augFracMtx(cpy, inv), onTable, table);
+            }
+
+            // one-ify the pivot row
+            let pivRecip = helper.fracs.recip(cpy[pivRow][pivRow])
+            helper.matrices.multrow(cpy, pivRow, pivRecip);
+            helper.matrices.multrow(inv, pivRow, pivRecip);
+            helper.dom.addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
+                     ((pivRecip[0] === 1 && pivRecip[1] === 1) ? "" :
+                     toTeX.frac(pivRecip)) + "\\text{R}" + (pivRow + 1) + "\\]",
+                     toTeX.augFracMtx(cpy, inv), onTable, table);
+                
+            // eliminate below and above
+            for (let currRow = pivRow + 1; currRow < n; currRow++) {
+                let negCurr = helper.fracs.negate(cpy[currRow][pivRow]);
+                if (negCurr[0] !== 0) {
+                    helper.matrices.rowop(cpy, currRow, pivRow, negCurr);
+                    helper.matrices.rowop(inv, currRow, pivRow, negCurr);
+                    helper.dom.addRowOp(
+                        "\\[" + toTeX.rowop(currRow, pivRow, negCurr) + "\\]",
+                        toTeX.augFracMtx(cpy, inv),
+                        onTable, table);
+                    }
+            }
+            for (let currRow = 0; currRow < pivRow; currRow++) {
+                let negCurr = helper.fracs.negate(cpy[currRow][pivRow]);
+                if (negCurr[0] !== 0) {
+                    helper.matrices.rowop(cpy, currRow, pivRow, negCurr);
+                    helper.matrices.rowop(inv, currRow, pivRow, negCurr);
+                    helper.dom.addRowOp(
+                        "\\[" + toTeX.rowop(currRow, pivRow, negCurr) + "\\]",
+                        toTeX.augFracMtx(cpy, inv),
+                        onTable, table);
+                    }
+            }
+        }
+        
+        if (onTable[0])  // in case it ends in a table
+            div.appendChild(table);
+        helper.dom.addPara(div,
+            "Thus, our final answer is as follows. We can check our answer \
+            by noting that multiplying it by the original matrix (on either \
+            the left or the right) yields the identity matrix.");
+        helper.dom.addPara(div, toTeX.fracMtx(inv));
+
+        // note closed-form formula if matrix is 2 by 2
+        if (n == 2) {
+            helper.dom.addPara(div, "Note that, since the original matrix is \
+                \\(2 \\times 2\\), we could have used the shortcut for finding \
+                the inverse of \\(2 \\times 2\\) matrices, which consists of \
+                swapping the entries on the diagonal, negating the entries \
+                on the off-diagonal, and dividing by the determinant, which is \
+                " + calc.det(mtx, n) + ".");
+        }
+        return div;
     },
 
     rref: function() {
@@ -385,12 +469,10 @@ let sbsNode =
             pivRow++;
         }
 
-        if (onTable[0]) {  // in case it ends in a table
-            onTable[0] = false;
-            div.append(table);
-        }
-        helper.dom.addText("The matrix is now in reduced row echelon form.",
-                            onTable, table, div);
+        if (onTable[0])  // in case it ends in a table
+            div.appendChild(table);
+        helper.dom.addPara(div,
+            "The matrix is now in reduced row echelon form.");
         return div;
     },
 }

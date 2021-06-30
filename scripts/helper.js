@@ -131,6 +131,14 @@ let helper =
 
         multiply: function(f1, f2) {
             return helper.fracs.simplify([f1[0] * f2[0], f1[1] * f2[1]]);
+        },
+
+        recip: function(frac) {
+            return helper.fracs.simplify([frac[1], frac[0]]);
+        },
+
+        negate: function(frac) {
+            return helper.fracs.multiply([-1,1], frac);
         }
     },
 

@@ -91,16 +91,16 @@ let calc =
                 if (cpy[currRow][pivRow][0] === 0) continue;
 
                 // eliminate it via a row operation
-                let pivot = cpy[pivRow][pivRow];
-                let multiplier = helper.fracs.multiply(cpy[currRow][pivRow],
-                    helper.fracs.simplify([pivot[1], pivot[0]]));
-                helper.matrices.rowop(cpy, currRow, pivRow,
-                    helper.fracs.multiply([-1,1], multiplier));
+                let posF = 
+                    helper.fracs.multiply(cpy[currRow][pivRow],
+                    helper.fracs.recip(cpy[pivRow][pivRow]));
+                helper.matrices.rowop(
+                    cpy, currRow, pivRow, helper.fracs.negate(posF));
 
                 // find the inverse of the elimination matrix corresponding
                 // to that row operation; multiply it into the accumulator
                 let inv = helper.matrices.fracIdentity(n);
-                inv[currRow][pivRow] = multiplier;
+                inv[currRow][pivRow] = posF;
                 L = calc.fracMtxMult(L, inv);
             }
         }
@@ -132,70 +132,109 @@ let calc =
         return res;
     },
 
+    mtxInverse: function(mtx) {     // matrix must be invertible
+        let n = mtx.length;
+
+        // use closed-form formula if matrix is 2 by 2
+        if (n == 2) {
+            let detRecip = helper.fracs.simplify([1, calc.det(mtx, 2)]);
+            let negDetRecip = helper.fracs.multiply([-1,1], detRecip);
+            let fracMtx = helper.fracs.mtxFracCopy(mtx);
+            return [[helper.fracs.multiply(fracMtx[1][1], detRecip),
+                     helper.fracs.multiply(fracMtx[0][1], negDetRecip)  ],
+                    [helper.fracs.multiply(fracMtx[1][0], negDetRecip),
+                     helper.fracs.multiply(fracMtx[0][0], detRecip)     ]]
+        }
+
+        // otherwise, use gauss-jordan
+        let cpy = helper.fracs.mtxFracCopy(mtx);
+        let inv = helper.matrices.fracIdentity(n);
+        for (let pivRow = 0; pivRow < n; pivRow++) {
+            // swap rows if pivot is zero
+            if (cpy[pivRow][pivRow][0] === 0) {
+                let rowToSwap = 0;
+                while (cpy[rowToSwap][pivRow][0] === 0) rowToSwap++;
+                // since matrix is invertible, we're guaranteed
+                // to find a nonzero entry, so this is safe
+                helper.matrices.swap(cpy, pivRow, rowToSwap);
+                helper.matrices.swap(inv, pivRow, rowToSwap);
+            }
+
+            // one-ify the pivot row
+            let pivRecip = helper.fracs.recip(cpy[pivRow][pivRow])
+            helper.matrices.multrow(cpy, pivRow, pivRecip);
+            helper.matrices.multrow(inv, pivRow, pivRecip);
+                
+            // eliminate below and above
+            for (let currRow = pivRow + 1; currRow < n; currRow++) {
+                let negCurr = helper.fracs.negate(cpy[currRow][pivRow]);
+                if (negCurr[0] !== 0)
+                    helper.matrices.rowop(cpy, currRow, pivRow, negCurr);
+                    helper.matrices.rowop(inv, currRow, pivRow, negCurr);
+            }
+            for (let currRow = 0; currRow < pivRow; currRow++) {
+                let negCurr = helper.fracs.negate(cpy[currRow][pivRow]);
+                if (negCurr[0] !== 0)
+                    helper.matrices.rowop(cpy, currRow, pivRow, negCurr);
+                    helper.matrices.rowop(inv, currRow, pivRow, negCurr);
+            }
+        }
+
+        return inv;
+    },
+
     // maybe write different versions of rref for different number types?
     // this would be the integer version
     rref: function(mtx) {
-        let cpy = helper.fracs.mtxFracCopy(mtx);
-
-        // general strategy: locate pivot, one-ify pivot row, then eliminate
+        // general strategy: locate pivot, one-ify pivot row, then eliminate.
         // the choices you have for making computations easier are:
             // choosing when to one-ify. You can do that whenever.
-            // swapping rows (unnecessarily). This is not something a human might be able to see.
+            // swapping rows (unnecessarily). This is not something a human
+                // might be able to see.
+
+        let cpy = helper.fracs.mtxFracCopy(mtx);
 
         pivCol = 0; pivRow = 0;
         while (pivCol < cpy[0].length && pivRow < cpy.length) {
-            // make sure pivot is nonzero
-            if (cpy[pivRow][pivCol][0] === 0) {
-                // look for a nonzero under pivot, swap if found.
-                // if there are none, move on to the next column
+            let pivot = cpy[pivRow][pivCol];
 
+            // make sure pivot is nonzero
+            if (pivot[0] === 0) {
+                // look for a nonzero under pivot, swap
+                // if none, move on to the next column
                 let rowToSwap = pivRow + 1;
                 while (rowToSwap < cpy.length &&
                        cpy[rowToSwap][pivCol][0] === 0)
                     rowToSwap++;
-                
                 if (rowToSwap === cpy.length) {
                     pivCol++; continue;
                 }
                 else helper.matrices.swap(cpy, pivRow, rowToSwap);
             }
             
-            pivot = cpy[pivRow][pivCol];
-            pivRecip = helper.fracs.simplify([pivot[1], pivot[0]]);
             // one-ify the pivot row
-            helper.matrices.multrow(cpy, pivRow, pivRecip);
+            helper.matrices.multrow(cpy, pivRow, helper.fracs.recip(pivot));
 
-            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
-
-            // eliminate the stuff below the pivot, skipping zeros
+            // eliminate the stuff below and above the pivot, skipping zeros
             currRow = pivRow + 1;
             while (currRow < cpy.length) {
-                if (cpy[currRow][pivCol][0] !== 0) {
-                    // gotta make it zero, using a row operation
-                    let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
-                    // let scalar = helper.fracs.multiply(negB, pivRecip);
-                    helper.matrices.rowop(cpy, currRow, pivRow, negB);
-                }
+                let curr = cpy[currRow][pivCol];
+                if (curr[0] !== 0)
+                    helper.matrices.rowop(cpy, currRow, pivRow,
+                        helper.fracs.negate(curr));
                 currRow++;
             }
-
-            // eliminate the stuff above the pivot, skipping zeros
             currRow = pivRow - 1;
             while (currRow >= 0) {
-                if (cpy[currRow][pivCol][0] !== 0) {
-                    // gotta make it zero, using a row operation
-                    let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
-                    // let scalar = helper.fracs.multiply(negB, pivRecip);
-                    helper.matrices.rowop(cpy, currRow, pivRow, negB);
-                }
+                let curr = cpy[currRow][pivCol];
+                if (curr[0] !== 0)
+                    helper.matrices.rowop(cpy, currRow, pivRow,
+                        helper.fracs.negate(curr));
                 currRow--;
             }
 
             // move on to the next pivot
-            pivCol++;
-            pivRow++;
-            
-            // solText.textContent += "\\[" + toTeX.fracMtx(cpy) + "\\]\n"
+            pivCol++; pivRow++;
         }
 
         return cpy;
