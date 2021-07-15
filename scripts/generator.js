@@ -27,7 +27,6 @@ let debugging =
         console.log(str + "]");
 
 
-
         // let m = mtx.length;
         // let n = mtx[0].length;
 
@@ -69,7 +68,7 @@ const genText = document.getElementById("problem-text");
 const solButton = document.getElementById("solution-button");
 const solText = document.getElementById("solution-text");
 const sbsButton = document.getElementById("step-by-step-button");
-const sbsSection = document.getElementById("sbs-section");
+const sbsSection = document.getElementById("sbs-section");  // TODO would be better to make one
 
 // this object represents the current active problem
 let activeProb = {
@@ -223,6 +222,7 @@ genButton.onclick = function() {
     solText.textContent = "";
     sbsButton.classList.add("inactive");
     helper.dom.removeAllChildren(sbsSection);
+    sbsSection.style.display = "none";
     MathJax.typesetClear(genText); MathJax.typeset([genText]);
 }
 solButton.onclick = function() {
@@ -231,6 +231,7 @@ solButton.onclick = function() {
     sbsButton.classList.remove("inactive");
 }
 sbsButton.onclick = function() {
+    sbsSection.style.display = "block";
     helper.dom.removeAllChildren(sbsSection);
     sbsSection.appendChild(sbsNode[activeProb.type]());
     MathJax.typesetClear(sbsSection); MathJax.typeset([sbsSection]);

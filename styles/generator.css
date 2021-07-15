@@ -1,72 +1,20 @@
 main {
-    display: grid;
-    grid-template-columns: 1fr 4fr 1fr;
+    text-align: center;
 }
-
-
-/* sidebars */
-
-.sidebar {
-    background-color: white;
-    margin: 2rem 0;
-    padding: 0.5rem;
-    border: solid 2pt black;
-    border-radius: 0.5rem;
-}
-
-.sidebar h2 {
-    background-color:#b6ddeb;
-    padding: 0.5rem;
-    border-radius: inherit;
-    font-size: x-large;
-}
-
-.sidebar button {
-    display: block;
-    width: 100%;
-}
-
-#problem-type-sidebar button {
-    border-width: 0;
-    border-radius: inherit;
-    background-color: inherit;
-    text-align: left;
-    font-family: inherit;
-    font-size: inherit;
-    padding: 0.4rem;
-}
-
-#problem-type-sidebar button:hover {
-    background-color: #888787;
-    color: white;
-}
-
-#problem-type-sidebar button.active {
-    background-color: black;
-    color: white;
-}
-
-
-/* main content */
 
 h1 {
-    text-align: center;
     padding: 2rem 0;
     font-size: xx-large;
 }
 
-#instructions {
-    text-align: center;
-}
-
 .window {
-    width: 80%;
-    min-height: 10rem;   /* window height referenced */
+    width: 60%;
+    min-height: 10rem;
     background-color: beige;
     border: solid 2pt black;
     border-radius: 0.5rem;
     margin: 3rem auto;
-    position: relative; /* I don't know if there's a better way to do this */
+    position: relative;
 }
 
 .window p {
@@ -76,16 +24,12 @@ h1 {
 }
 
 
-/* shadowed buttons */
+/* shadowed buttons positioning */
 
 .sol-and-gen-buttons {
     position: absolute;
     top: -15px;
     left: -15px;
-    background-color: #b6ddeb;
-}
-.sol-and-gen-buttons:hover {
-    background-color: #a0c3cf;
 }
 
 #step-by-step-button {
@@ -99,27 +43,6 @@ h1 {
 
 #options-button {
     position: relative;
-}
-
-.aux-buttons {
-    background-color: rgb(238, 237, 237);
-}
-.aux-buttons:hover {
-    background-color: lightgrey;
-}
-
-.shadowed-button {
-    font-family: inherit;
-    font-size: large;
-    margin: 0;
-    padding: 8px 15px;
-    border: solid 2pt black;
-    border-radius: 0.5rem;
-    box-shadow: 2px 2px 2px -1px;
-}
-
-.shadowed-button:active {
-    box-shadow: 0 0;
 }
 
 
@@ -142,7 +65,12 @@ h1 {
 /* sbs */
 
 #sbs-section {
-    margin: 2rem;
+    background-color: white;
+    width: 80%;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: solid 2pt black;
+    border-radius: 0.5rem;
 }
 
 table {

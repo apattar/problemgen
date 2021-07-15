@@ -6,68 +6,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cross Product Practice</title>
     <link rel="stylesheet" type="text/css" href="styles/all.css" />
+    <link rel="stylesheet" type="text/css" href="styles/sidebars.css" />
+    <link rel="stylesheet" type="text/css" href="styles/shadowedButtons.css" />
     <link rel="stylesheet" type="text/css" href="styles/generator.css" />
 </head>
 <body>
-    <nav>
-        <a href="index.html">Home</a><a href="about.html" id="about-link">About</a><a class="active">Problem Generator</a><a href="stepbystep.html">Step-By-Step Calculator</a>
-    </nav>
+    <header>
+        <nav>
+            <a href="index.html">Home</a><a href="about.html" id="about-link">About</a><a class="active">Problem Generator</a><a href="stepbystep.html">Step-By-Step Calculator</a>
+        </nav>
+    </header>
 
-    <main id="main">
-        <section id="problem-type-sidebar" class="sidebar">
-            <h2>Linear Algebra</h2>
-            <!-- might add: vector length (sqrts), dot product -->
-                <button id="crossProduct">Cross Product</button>
-                <button id="vecProj">Vector Projections</button>
-                <button id="mtxMult">Matrix Multiplication</button>
-                <!-- <button id="gaussElim">Gaussian Elimination</button> -->
-                <button id="luDecomp">LU Decomposition</button>
-                <button id="det">Matrix Determinant</button>
-                <button id="mtxInverse">Gauss-Jordan Inverse</button>
-                <button id="rref">RREF</button>
-            <h2>Multivariable Calculus</h2>
-                <button id="placeholder">Placeholder</button>
+    <section id="problem-type-sidebar" class="sidebar">
+        <h2>Linear Algebra</h2>
+        <!-- might add: vector length (sqrts), dot product -->
+            <button id="crossProduct">Cross Product</button>
+            <button id="vecProj">Vector Projections</button>
+            <button id="mtxMult">Matrix Multiplication</button>
+            <!-- <button id="gaussElim">Gaussian Elimination</button> -->
+            <button id="luDecomp">LU Decomposition</button>
+            <button id="det">Matrix Determinant</button>
+            <button id="mtxInverse">Gauss-Jordan Inverse</button>
+            <button id="rref">RREF</button>
+        <h2>Multivariable Calculus</h2>
+            <button id="placeholder">Placeholder</button>
+    </section>
+
+    <section id="options-sidebar" class="sidebar">
+        <h2>Keyboard Shortcuts</h2>
+            <p>Generate: <code>g</code></p>
+            <p>Show solution: <code>s</code></p>
+            <p>See step-by-step solution: <code>t</code></p>
+        <button id="options-button" class="aux-buttons shadowed-buttons">Options</button>
+    </section>
+
+    <main>
+        <h1><span id="title-problem-type">Cross Product</span> Practice</h1>
+
+        <p id="instructions">Find the [unimplemented].</p>
+
+        <section class="window">
+            <button id="generate-button" class="sol-and-gen-buttons shadowed-buttons">GENERATE</button>
+            <p id="problem-text"></p> <!-- Content goes here -->
         </section>
-
-        <section id="main-content">
-            <h1><span id="title-problem-type">Cross Product</span> Practice</h1>
-
-            <p id="instructions">Find the [unimplemented].</p>
-
-            <section class="window">
-                <button id="generate-button" class="sol-and-gen-buttons shadowed-button">GENERATE</button>
-                <p id="problem-text"></p> <!-- Content goes here -->
-            </section>
-            <section class="window">
-                <button id="solution-button" class="sol-and-gen-buttons shadowed-button">SEE SOLUTION</button>
-                <p id="solution-text"></p> <!-- Solution goes here -->
-                <button id="step-by-step-button" class="inactive aux-buttons shadowed-button">see step-by-step solution</button>
-            </section>
-            <section id="sbs-section">
-                <div> <!-- step-by-step instructions go here --> </div>
-            </section>
+        <section class="window">
+            <button id="solution-button" class="sol-and-gen-buttons shadowed-buttons">SEE SOLUTION</button>
+            <p id="solution-text"></p> <!-- Solution goes here -->
+            <button id="step-by-step-button" class="inactive aux-buttons shadowed-buttons">see step-by-step solution</button>
         </section>
-        
-        <section id="options-sidebar" class="sidebar">
-            <h2>Keyboard Shortcuts</h2>
-                <p>Generate: <code>g</code></p>
-                <p>Show solution: <code>s</code></p>
-                <p>See step-by-step solution: <code>t</code></p>
-            <button id="options-button" class="aux-buttons shadowed-button">Options</button>
+        <section id="sbs-section">
+            <div> <!-- step-by-step instructions go here --> </div>
         </section>
     </main>
 
-    <script type="text/javascript" src="scripts/jquery-3.6.0.js"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <!-- the script tag below used to have the "async" attribute -->
+    <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script type="text/javascript" id="MathJax-script"
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <script src="scripts/helper.js"></script>
-    <script src="scripts/calc.js"></script>
-    <script src="scripts/toTeX.js"></script>
-    <script src="scripts/sbsNode.js"></script>
-    <script src="scripts/generator.js"></script>
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> <!-- used to have async attribute -->
+    <!-- TODO just at the start of the page, have loading symbol while MathJax is imported -->
+    <script type="text/javascript" src="scripts/helper.js"></script>
+    <script type="text/javascript" src="scripts/calc.js"></script>
+    <script type="text/javascript" src="scripts/toTeX.js"></script>
+    <script type="text/javascript" src="scripts/sbsNode.js"></script>
+    <script type="text/javascript" src="scripts/generator.js"></script>
 
     <!-- Remove unnecessary classes & ids when done -->
 </body>

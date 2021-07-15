@@ -1,0 +1,55 @@
+.sidebar {
+    background-color: white;
+    padding: 0.5rem;
+    border: solid 2pt black;
+    border-radius: 0.5rem;
+}
+
+#problem-type-sidebar {
+    margin: 2rem 2rem 2rem 0;
+}
+#options-sidebar {
+    margin: 2rem 0 2rem 2rem;
+}
+
+.sidebar h2 {
+    background-color:#b6ddeb;
+    padding: 0.5rem;
+    border-radius: inherit;
+    font-size: x-large;
+}
+
+.sidebar button {
+    display: block;
+    width: 100%;
+}
+
+#problem-type-sidebar button {
+    border-width: 0;
+    border-radius: inherit;
+    background-color: inherit;
+    text-align: left;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0.4rem;
+}
+
+#problem-type-sidebar button:hover {
+    background-color: #888787;
+    color: white;
+}
+
+#problem-type-sidebar button.active {
+    background-color: black;
+    color: white;
+}
+
+#problem-type-sidebar {
+    width: 16%;
+    float: left;
+}
+
+#options-sidebar {
+    width: 16%;
+    float: right;
+}

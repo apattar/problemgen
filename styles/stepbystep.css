@@ -1,0 +1,24 @@
+
+/* tables */
+
+table {
+    margin: 1rem auto;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 0;
+}
+
+
+/* shadowed buttons positioning */
+
+.shadowed-buttons {
+    position: relative;
+}
+
+/* moving the shadowed buttons when they're clicked */
+
+.shadowed-buttons:active {
+    left: 2px;
+    top: 2px;
+}

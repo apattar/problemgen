@@ -42,12 +42,29 @@ let sbsNode =
     },
 
     vecProj: function() {
+        let div = document.createElement("div");
         let ontoTeX = toTeX.vecComma(activeProb.val1);
         let fromTeX = toTeX.vecComma(activeProb.val2);
+        let tog = calc.dot(activeProb.val1, activeProb.val2);
+        let sq = calc.dot(activeProb.val1, activeProb.val1);
 
-        let text = "We first find the following intermediate results in order to use the vector projection formula:\\begin{align*}"
-        text += ontoTeX + " \\cdot " + fromTeX + " = "; // TODO insert the dot calculation TeX
+        helper.dom.addPara(div, "We first find the following intermediate \
+            results in order to use the vector projection formula.");
+
+        let text = "\\begin{align*}" + ontoTeX + " \\cdot " + fromTeX + " &= ";
+        let steps = toTeX.dot2Steps(activeProb.val1, activeProb.val2);
+        text += steps[0] + "\\\\&= " + steps[1] + "\\\\&= " + tog + "\\\\";
+
+        text += ontoTeX + " \\cdot " + ontoTeX + " &= ";
+        steps = toTeX.dot2Steps(activeProb.val1, activeProb.val1);
+        text += steps[0] + "\\\\&= " + steps[1] + "\\\\&= " + sq + "\\\\";
         text += "\\end{align*}"
+        
+        helper.dom.addPara(div, text);
+        helper.dom.addPara(div, "We then plug in the results:");
+        
+
+        return div;
     },
 
     mtxMult: function() {

@@ -1,0 +1,28 @@
+
+/* this file does not contain any positioning-related information */
+
+.shadowed-buttons {
+    font-family: inherit;
+    font-size: large;
+    margin: 0;
+    padding: 8px 15px;
+    border: solid 2pt black;
+    border-radius: 0.5rem;
+    box-shadow: 2px 2px 2px -1px;
+}
+.shadowed-buttons:active {
+    box-shadow: 0 0;
+}
+
+.aux-buttons {
+    background-color: rgb(238, 237, 237);
+}
+.aux-buttons:hover {
+    background-color: lightgrey;
+}
+.main-buttons {
+    background-color: #b6ddeb;
+}
+.main-buttons:hover {
+    background-color: #a0c3cf;
+}

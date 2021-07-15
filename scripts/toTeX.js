@@ -64,9 +64,10 @@ let toTeX =
         res = "";
         for (let i = 0; i < arr.length; i++) {
             res += "("
-            for (let j = 0; j < arr[i].length; j++)
+            for (let j = 0; j < arr[i].length - 1; j++)
                 res += arr[i][j] + ")(";
-            res = res.slice(0, res.length - 1) + ((subtract) ? " - " : " + ");
+            res += arr[i][arr[i].length - 1] + ")"
+            res += ((subtract) ? " - " : " + ");
         }
         return res.slice(0, res.length - 3);
     },
@@ -78,6 +79,16 @@ let toTeX =
         for (let i = 1; i < arr.length - 1; i++)
             res += Math.abs(arr[i]) + ((arr[i+1] < 0) ? " - " : " + ");
         return res + Math.abs(arr[arr.length - 1]);
+    },
+
+    dot2Steps: function(x, y) {
+        let arrStep1 = []
+        let arrStep2 = []
+        for (let i = 0; i < x.length; i++) {
+            arrStep1.push([x[i], y[i]]);
+            arrStep2.push(x[i]*y[i]);
+        }
+        return [toTeX.prodSum(arrStep1), toTeX.sum(arrStep2)];
     },
 
     rowop: function(modifiedRow, modifierRow, coeffFrac) {

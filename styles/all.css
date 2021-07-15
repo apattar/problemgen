@@ -15,7 +15,7 @@ nav {
 
 nav a {
     display: inline-block;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', Geneva, sans-serif;
+    font-family: inherit;
     text-decoration: none;
     color: black;
     padding: 0.7rem;

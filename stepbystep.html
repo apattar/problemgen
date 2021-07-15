@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Practice Problem Generator Home</title>
     <link rel="stylesheet" type="text/css" href="styles/all.css" />
-    <link rel="stylesheet" type="text/css" href="styles/homepage.css" />
+    <link rel="stylesheet" type="text/css" href="styles/sidebars.css" />
+    <link rel="stylesheet" type="text/css" href="styles/shadowedButtons.css" />
+    <link rel="stylesheet" type="text/css" href="styles/stepbystep.css" />
 </head>
 <body>
     <header>
@@ -15,10 +17,39 @@
         </nav>
     </header>
 
+    <!-- Make sure to keep this updated -->
+    <section id="problem-type-sidebar" class="sidebar">
+        <h2>Linear Algebra</h2>
+        <!-- might add: vector length (sqrts), dot product -->
+            <button id="crossProduct">Cross Product</button>
+            <button id="vecProj">Vector Projections</button>
+            <button id="mtxMult">Matrix Multiplication</button>
+            <!-- <button id="gaussElim">Gaussian Elimination</button> -->
+            <button id="luDecomp">LU Decomposition</button>
+            <button id="det">Matrix Determinant</button>
+            <button id="mtxInverse">Gauss-Jordan Inverse</button>
+            <button id="rref">RREF</button>
+        <h2>Multivariable Calculus</h2>
+            <button id="placeholder">Placeholder</button>
+    </section>
+
+    <section id="options-sidebar" class="sidebar">
+        <h2>Options</h2>
+        <button id="options-button" class="aux-buttons shadowed-buttons">Options</button>
+    </section>
+
     <main>
         <h1>Step-By-Step Calculator</h1>
         <p>Sorry, this feature is still in development.</p>
         <!-- I'd like to have a cool input field for the matrices -->
+        <button class="shadowed-buttons main-buttons">Go</button>
     </main>
+
+    <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="scripts/sbsNode.js"></script>
+    <script type="text/javascript" src="scripts/sbsPage.js"></script>
 </body>
 </html>
