@@ -1,4 +1,30 @@
 
+
+
+Represent equations like you did with SML, with structures like Times(eqn, eqn), Plus(eqn, eqn), X, Constant, Pow(eqn, eqn), etc.
+
+Then, when generating practice problems, you choose 2 or 3 rules that you want the user to apply, and the order you want them to be applied. Generate the problem using that.
+Do it rule-based, since each rule takes equations from a specific form to another form.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 have option to hide step by step
 
 Layout showing controls
