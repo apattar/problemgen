@@ -209,27 +209,32 @@ let calc =
                 if (rowToSwap === cpy.length) {
                     pivCol++; continue;
                 }
-                else helper.matrices.swap(cpy, pivRow, rowToSwap);
+                else {
+                    helper.matrices.swap(cpy, pivRow, rowToSwap);
+                }
             }
             
             // one-ify the pivot row
+            pivot = cpy[pivRow][pivCol];
             helper.matrices.multrow(cpy, pivRow, helper.fracs.recip(pivot));
 
             // eliminate the stuff below and above the pivot, skipping zeros
             currRow = pivRow + 1;
             while (currRow < cpy.length) {
                 let curr = cpy[currRow][pivCol];
-                if (curr[0] !== 0)
+                if (curr[0] !== 0) {
                     helper.matrices.rowop(cpy, currRow, pivRow,
                         helper.fracs.negate(curr));
+                }
                 currRow++;
             }
             currRow = pivRow - 1;
             while (currRow >= 0) {
                 let curr = cpy[currRow][pivCol];
-                if (curr[0] !== 0)
+                if (curr[0] !== 0) {
                     helper.matrices.rowop(cpy, currRow, pivRow,
                         helper.fracs.negate(curr));
+                }
                 currRow--;
             }
 
@@ -238,5 +243,46 @@ let calc =
         }
 
         return cpy;
+    },
+
+    derivative: function(e, wrt) {
+        // wrt is "with respect to" - e.g. could be "x"
+        // there are going to be mutability issues here.
+        // ok, establishing these rules:
+        // e.expr<x> should never appear on its own without a calc.derivative() or
+        // Object.assign({}, ) (i.e. shallow copy) around it.
+        // you can easily write a recursive deep copy function, but is that necessary?
+        if (e.type === wrt) {
+            return (new exprCstr.constant(1));
+        } else if (e.type === "constant" || e.type === "x" || e.type === "y" || e.type === "z") {
+            return (new exprCstr.constant(0));
+        } else if (e.type === "coeff") {
+            return (new exprCstr.coeff(e.constant, calc.derivative(e.expr)));
+        } else if (e.type === "sum") {
+            return (new exprCstr.sum(calc.derivative(e.expr1), calc.derivative(e.expr2)));
+        } else if (e.type === "product") {
+            return (new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr1), calc.derivative(e.expr2)),
+                                    new exprCstr.product(calc.derivative(e.expr1), Object.assign({}, e.expr2))));
+        } else if (e.type === "quotient") {
+            return new exprCstr.quotient(new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr2), calc.derivative(e.expr1)),
+                                         new exprCstr.coeff(-1, new exprCstr.product(calc.derivative(e.expr2), Object.assign({}, e.expr1)))),
+                                         new exprCstr.power(Object.assign({}, e.expr2), 2));
+        } else if (e.type === "power") {
+            return (new exprCstr.product(new exprCstr.coeff(e.constant, new exprCstr.power(Object.assign({}, e.expr), e.constant - 1)), calc.derivative(e.expr)));
+        } else if (e.type === "etothe") {
+            return (new exprCstr.product(Object.assign({}, e), calc.derivative(e.expr)));
+        } else if (e.type === "sin") {
+            return (new exprCstr.product(new exprCstr.cos(Object.assign({}, e.expr)), calc.derivative(e.expr)));
+        } else if (e.type === "cos") {
+            return (new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.sin(Object.assign({}, e.expr)), calc.derivative(e.expr))));
+        } else if (e.type === "tan") {
+            return new exprCstr.power(new exprCstr.sec(Object.assign({}, e.expr)), 2);
+        } else if (e.type === "csc") {
+            return new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.product(new exprCstr.csc(Object.assign({}, e.expr)), new exprCstr.cot(Object.assign({}, e.expr))), calc.derivative(e.expr)));
+        } else if (e.type === "sec") {
+            return (new exprCstr.product(new exprCstr.product(new exprCstr.sec(Object.assign({}, e.expr)), new exprCstr.tan(Object.assign({}, e.expr))), calc.derivative(e.expr)));
+        } else if (e.type === "cot") {
+            return new exprCstr.coeff(-1, new exprCstr.power(new exprCstr.csc(Object.assign({}, e.expr)), 2));
+        }
     }
 }
