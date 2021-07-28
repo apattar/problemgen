@@ -32,6 +32,7 @@
     font-family: inherit;
     font-size: inherit;
     padding: 0.4rem;
+    transition: 150ms;
 }
 
 #problem-type-sidebar button:hover {

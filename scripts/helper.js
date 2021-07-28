@@ -1,3 +1,4 @@
+// for utilities that aren't main calculators or generators
 let helper =
 {
     gcd: function(a, b) {
@@ -214,29 +215,4 @@ let helper =
             div.appendChild(p);
         }
     },
-}
-
-let generate =
-{
-    mtx: function(m, n) {
-        // REQUIRES: m and n are strictly positive
-        let res = []
-        for (let i = 0; i < m; i++) {
-            res.push([]);
-            for (let j = 0; j < n; j++) {
-                res[res.length - 1]
-                    .push(helper.randint(settings.min, settings.max));
-            }
-        }
-        return res;
-    },
-
-    vec: function(n) {
-        // REQUIRES: n is strictly positive
-        let res = [];
-        for (let i = 0; i < n; i++) {
-            res.push(helper.randint(settings.min, settings.max));
-        }
-        return res;
-    }
 }

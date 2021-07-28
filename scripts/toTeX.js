@@ -136,6 +136,10 @@ let toTeX =
         // converts an equation object to LaTeX, recursively
         if (e.type === "x") {
             return "x";
+        } else if (e.type === "y") {
+            return "y";
+        } else if (e.type === "z") {
+            return "z";
         } else if (e.type === "constant") {
             return e.constant.toString();
         } else if (e.type === "coeff") {
@@ -144,11 +148,13 @@ let toTeX =
             return "{" + toTeX.expr(e.expr1) + "} + {" + toTeX.expr(e.expr2) + "}"; // write an isNegative function for this?
         } else if (e.type === "product") {
             return "\\left(" + toTeX.expr(e.expr1) + "\\right)\\left(" + toTeX.expr(e.expr2) + "\\right)";
+        } else if (e.type === "quotient") {
+            return "\\dfrac{" + toTeX.expr(e.expr1) + "}{" + toTeX.expr(e.expr2) + "}";
         } else if (e.type === "power") {
             return "{" + toTeX.expr(e.expr) + "}^{" + e.constant + "}";
         } else if (e.type === "etothe") {
             if (e.expr.type === "constant" && e.expr.constant === 1) return "e";
-            else return "e^{" + toTeX.expr(e.expr) + "}";
+            else return "e^{\\left(" + toTeX.expr(e.expr) + "\\right)}";
         } else { // is a trig function
             return "\\" + e.type + "\\left(" + toTeX.expr(e.expr) + "\\right)";
         }
