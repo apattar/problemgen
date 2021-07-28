@@ -22,6 +22,9 @@ let exprCstr =
         } else if (constant === 0) {
             this.type = "constant";
             this.constant = 0;
+        } else if (expr.type === "constant") {
+            this.type = "constant";
+            this.constant = constant * expr.constant;
         } else {
             this.type = "coeff";
             this.constant = constant;
@@ -77,9 +80,7 @@ let exprCstr =
     },
     power: function(expr, constant) {
         if (constant === 1) {
-            console.log(expr.type);
             Object.assign(this, expr);
-            console.log(this.type);
         } else if (constant === 0) {
             this.type = "constant"
             this.constant = 1;

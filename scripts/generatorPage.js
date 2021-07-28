@@ -156,6 +156,11 @@ let showSolution =
         let sol = calc.rref(activeProb.val1);
         solText.textContent = "\\[" + toTeX.fracMtx(sol) + "\\]";
     },
+
+    derivative: function() {
+        let sol = calc.derivative(activeProb.val1, "x");
+        solText.textContent = "\\[" + toTeX.expr(sol) + "\\]";
+    }
 }
 
 

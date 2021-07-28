@@ -151,7 +151,7 @@ let toTeX =
         } else if (e.type === "quotient") {
             return "\\dfrac{" + toTeX.expr(e.expr1) + "}{" + toTeX.expr(e.expr2) + "}";
         } else if (e.type === "power") {
-            return "{" + toTeX.expr(e.expr) + "}^{" + e.constant + "}";
+            return "{\\left(" + toTeX.expr(e.expr) + "\\right)}^{" + e.constant + "}";
         } else if (e.type === "etothe") {
             if (e.expr.type === "constant" && e.expr.constant === 1) return "e";
             else return "e^{\\left(" + toTeX.expr(e.expr) + "\\right)}";
