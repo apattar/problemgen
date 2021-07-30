@@ -306,5 +306,24 @@ let helper =
         mergePlus: function(e) {
 
         },
+
+        isNegative: function(e) {
+            // this function returns null if e is positive
+            // or a positive version of e if e is negative
+            if (e.type === "constant" && e.constant < 0) {
+                return new exprCstr.constant(e.constant * -1);
+            } else if (e.type === "coeff" && e.constant < 0) {
+                return new exprCstr.coeff(e.constant * -1, e.expr);
+            } else if (e.type === "quotient" && e.expr1.type === "constant" && e.expr1.constant < 0) {
+                return new exprCstr.quotient(new exprCstr.constant(e.expr1.constant * -1), e.expr2); 
+            } else if (e.type === "quotient" && e.expr1.type === "coeff" && e.expr1.constant < 0) {
+                return new exprCstr.quotient(new exprCstr.coeff(e.expr1.constant * -1, e.expr1.expr), e.expr2);
+            }
+            return null;
+        },
+
+        parse: function(e) {
+            // writing a parser that parses strict LaTeX will help you test
+        },
     },
 }

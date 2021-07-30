@@ -145,10 +145,19 @@ let toTeX =
         } else if (e.type === "constant") {
             return e.constant.toString();
         } else if (e.type === "coeff") {
-            return e.constant.toString() + "{" + toTeX.expr(e.expr) + "}";
+            if ("x y z product power etothe".split(" ").concat(trigFns).includes(e.expr.type)) {
+                return e.constant.toString() + "{" + toTeX.expr(e.expr) + "}";
+            } else return e.constant.toString() + "\\left( " +
+                          toTeX.expr(e.expr) + " \\right)";
         } else if (e.type === "sum") {
-            return "{" + toTeX.expr(e.expr1) + "} + {" + toTeX.expr(e.expr2) + "}"; // write an isNegative function for this?
-        } else if (e.type === "product") {
+            let expr1TeX = "{" + toTeX.expr(e.expr1) + "}";
+            let retval = helper.expr.isNegative(e.expr2);
+            if (retval === null) {
+                return "{" + toTeX.expr(e.expr1) + "} + {" + toTeX.expr(e.expr2) + "}";
+            } else {
+                return "{" + toTeX.expr(e.expr1) + "} - {" + toTeX.expr(retval) + "}";
+            }
+        } else if (e.type === "product") {  // product always has parens
             return "\\left(" + toTeX.expr(e.expr1) + "\\right)\\left(" + toTeX.expr(e.expr2) + "\\right)";
         } else if (e.type === "quotient") {
             return "\\dfrac{" + toTeX.expr(e.expr1) + "}{" + toTeX.expr(e.expr2) + "}";
@@ -156,7 +165,9 @@ let toTeX =
             return "{\\left(" + toTeX.expr(e.expr) + "\\right)}^{" + e.constant + "}";
         } else if (e.type === "etothe") {
             if (e.expr.type === "constant" && e.expr.constant === 1) return "e";
-            else return "e^{\\left(" + toTeX.expr(e.expr) + "\\right)}";
+            if ("x y z constant product".split(" ").concat(trigFns).includes(e.expr.type)) {
+                return "e^{" + toTeX.expr(e.expr) + "}";
+            } else return "e^{\\left(" + toTeX.expr(e.expr) + "\\right)}";
         } else { // is a trig function
             return "\\" + e.type + "\\left(" + toTeX.expr(e.expr) + "\\right)";
         }

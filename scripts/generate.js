@@ -36,8 +36,10 @@ let generate =
         let res = null
         let fn = exprLV2[Math.floor(Math.random() * exprLV2.length)];
         if (fn === "coeff") {
-            res = new exprCstr.coeff(helper.randint(settings.min, settings.max),
-                                      generate.expr(steps - 1, variables));
+            let coefficient = helper.randint(settings.min, settings.max);
+            while (coefficient === 0)
+                coefficient = helper.randint(settings.min, settings.max);
+            res = new exprCstr.coeff(coefficient, generate.expr(steps - 1, variables));
         } else if (fn === "sum") {
             // have chance of one being a constant?
             res = new exprCstr.sum(generate.expr(steps - 1, variables),
