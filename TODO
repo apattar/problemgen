@@ -1,4 +1,16 @@
 
+- write a parser for strict inputs
+- integrate options! the earlier the better
+- 
+
+
+
+
+
+
+
+
+
 
 
 Represent equations like you did with SML, with structures like Times(eqn, eqn), Plus(eqn, eqn), X, Constant, Pow(eqn, eqn), etc.

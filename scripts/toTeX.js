@@ -162,7 +162,14 @@ let toTeX =
         } else if (e.type === "quotient") {
             return "\\dfrac{" + toTeX.expr(e.expr1) + "}{" + toTeX.expr(e.expr2) + "}";
         } else if (e.type === "power") {
-            return "{\\left(" + toTeX.expr(e.expr) + "\\right)}^{" + e.constant + "}";
+            // want nothing on base if x y z constant
+            if ("x y z constant".split(" ").includes(e.expr.type)) {
+                return "{" + toTeX.expr(e.expr) + "}^{" + e.constant + "}";
+            } else if (trigFns.includes(e.expr.type)) {
+                return "\\" + e.expr.type + "^{" + e.constant + "}\\left( " +
+                    toTeX.expr(e.expr.expr) + " \\right)";
+            } else
+                return "{\\left( " + toTeX.expr(e.expr) + "\\right)}^{" + e.constant + "}";
         } else if (e.type === "etothe") {
             if (e.expr.type === "constant" && e.expr.constant === 1) return "e";
             if ("x y z constant product".split(" ").concat(trigFns).includes(e.expr.type)) {
