@@ -215,4 +215,96 @@ let helper =
             div.appendChild(p);
         }
     },
+
+    expr: {
+        mergeMult: function(e) {
+            // this function inductively applies a series of rules.
+            // i.e. it applies them to interior expressions, then enforces
+            // them on the outer expression with the assumption that all
+            // interior expressions follow the rules.
+
+            // (1) coeff types should not be directly nested.
+            // (2) products should not have either of their expressions as
+            //      coeffs or constants.
+            // (3) quotients should not have either of their expressions as
+            //      coeffs. (Constants are fine, but see next rule)
+            // (4) if a coeff type has a quotient inside it whose numerator
+            //      is a constant, the coefficient should be merged into it.
+
+            // TODO merge variables too
+            // of the same type with the same power.
+            // Works by recursively merging all sub-expressions, then
+            // doing the merging at top level.
+
+            // remember - never modify expressions in-place!
+            // there might be other things referencing them
+            // you can modify the reference structure though
+
+            if (e.type === "coeff") {
+                helper.expr.mergeMult(e.expr);
+                if (e.expr.type === "coeff") {   // (1)
+                    return new exprCstr.coeff(e.constant * e.expr.constant,
+                                              e.expr.expr);
+                } else if (e.expr.type === "quotient" &&
+                           e.expr.expr1.type === "constant") {  // (4)
+                    return new exprCstr.quotient(
+                        e.expr.expr1.constant * e.constant, e.expr.expr2);
+                }
+            } else if (e.type === "sum") {
+                helper.expr.mergeMult(e.expr1);
+                helper.expr.mergeMult(e.expr2);
+            } else if (e.type === "product") {
+                helper.expr.mergeMult(e.expr1);
+                helper.expr.mergeMult(e.expr2);
+
+                // (2)
+                let coeffAcc = 1;
+                if (e.expr1.type === "coeff") {
+                    coeffAcc *= e.expr1.constant;
+                    e.expr1 = e.expr1.expr;
+                }
+                if (e.expr2.type === "coeff") {
+                    coeffAcc *= e.expr2.constant;
+                    e.expr2 = e.expr2.expr;
+                }
+                if (e.expr1.type === "constant") {
+                    coeffAcc *= e.expr1.constant;
+                    return (coeffAcc === 1) ? e.expr2 :
+                        new exprCstr.coeff(coeffAcc, e.expr2);
+                }
+                if (e.expr2.type === "constant") {
+                    coeffAcc *= e.expr2.constant;
+                    return (coeffAcc === 1) ? e.expr1 :
+                        new exprCstr.coeff(coeffAcc, e.expr1);
+                }
+                return (coeffAcc === 1) ? e : new exprCstr.coeff(coeffAcc, e);
+
+            } else if (e.type === "quotient") {
+                helper.expr.mergeMult(e.expr1);
+                helper.expr.mergeMult(e.expr2);
+
+                // (3)
+                let coeffAcc = 1;
+                if (e.expr1.type === "coeff") {
+                    coeffAcc *= e.expr1.constant;
+                    e.expr1 = e.expr1.expr;
+                }
+                if (e.expr2.type === "coeff") {
+                    coeffAcc *= e.expr2.constant;
+                    e.expr2 = e.expr2.expr;
+                }
+                return (coeffAcc === 1) ? e : new exprCstr.coeff(coeffAcc, e);
+                
+            } else if (e.type === "power") {
+                helper.expr.mergeMult(e.expr);
+            } else if (e.type === "etothe") {
+                helper.expr.mergeMult(e.expr);
+            } else if (trigFns.includes(e.type)) {
+                helper.expr.mergeMult(e.expr);
+            }
+        },
+        mergePlus: function(e) {
+
+        },
+    },
 }

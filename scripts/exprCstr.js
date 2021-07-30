@@ -1,6 +1,8 @@
 
 
-// you should work all possible simplification into these constructors
+// you should work all possible simplification into these constructors.
+// when you want to show steps, you can test in the sbsNode function itself
+// before using the constructors
 let exprCstr =
 {
     x: function() {
@@ -92,6 +94,7 @@ let exprCstr =
     },
     etothe: function(expr) {
         // represents e^(expr)
+        // should be treated like a variable, regardless of what "expr" is.
         if (expr.type === "constant" && expr.constant === 0) {
             this.type = "constant";
             this.constant = 1;

@@ -105,7 +105,7 @@ let genAndShow =
     },
 
     derivative: function() {
-        let steps = helper.randint(1, 2);
+        let steps = helper.randint(2, 3);
         activeProb.val1 = generate.expr(steps, ["x"]);
 
         console.log(activeProb.val1);

@@ -134,6 +134,8 @@ let toTeX =
 
     expr: function(e) {
         // converts an equation object to LaTeX, recursively
+        // this should be able to be relied on for any expression, even if
+        // it isn't simplified. First order of business, nested coefficients.
         if (e.type === "x") {
             return "x";
         } else if (e.type === "y") {
