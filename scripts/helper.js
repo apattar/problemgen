@@ -322,8 +322,91 @@ let helper =
             return null;
         },
 
-        parse: function(e) {
-            // writing a parser that parses strict LaTeX will help you test
+        findUnmatchedRDelim: function(delims, str, start) {
+            // delims : String, like "{}"
+            let count = 0;
+            for (let i = start; i < str.length; i++) {
+                if (str.charAt(i) === delims.charAt(0)) count++;
+                if (str.charAt(i) === delims.charAt(1)) count--;
+                if (count < 0) return i;
+            }
+            return null;
+        },
+
+        parse: function(str) {
+            // accepts only specific syntax, and returns null on parsing error
+            // [] for sum/difference/quotient/power, {} for coeff,
+            // () for product, e^{} for etothe
+
+            if (str === "x") return new exprCstr.x();
+            else if (str === "y") return new exprCstr.y();
+            else if (str === "z") return new exprCstr.z();
+            
+            // coeff
+            else if (str.charAt(0) === "{") {
+                let braceIdx = helper.expr.findUnmatchedRDelim("{}", str, 1);
+                if (braceIdx === null || braceIdx >= str.length-2 ||
+                    str.charAt(braceIdx + 1) !== "{" ||
+                    str.charAt(str.length - 1) !== "}") return null;
+                let constant = Number.parseInt(str.slice(1, braceIdx));
+                let expr = helper.expr.parse(str.slice(braceIdx + 2, str.length - 1));
+                if (Number.isNaN(constant) || expr === null) return null;
+                return new exprCstr.coeff(constant, expr);
+            }
+
+            // product
+            else if (str.charAt(0) === "(") {
+                let parenIdx = helper.expr.findUnmatchedRDelim("()", str, 1);
+                if (parenIdx === null || parenIdx >= str.length-2 ||
+                    str.charAt(parenIdx + 1) !== "(" ||
+                    str.charAt(str.length - 1) !== ")") return null;
+                let expr1 = helper.expr.parse(str.slice(1, parenIdx));
+                let expr2 = helper.expr.parse(str.slice(parenIdx + 2, str.length - 1));
+                if (expr1 === null || expr2 === null) return null;
+                return new exprCstr.product(expr1, expr2);
+            }
+
+            // sum, difference, quotient, power
+            else if (str.charAt(0) === "[") {
+                let brackIdx = helper.expr.findUnmatchedRDelim("[]", str, 1);
+                if (brackIdx === null || brackIdx >= str.length-5 ||
+                    str.charAt(brackIdx + 1) !== " " ||
+                    str.slice(brackIdx + 3, brackIdx + 5) !== " [" ||
+                    str.charAt(str.length - 1) !== "]") return null;
+                let op = str.charAt(brackIdx + 2);
+                let expr1 = helper.expr.parse(str.slice(1, brackIdx));
+                if (op === "^") {
+                    let constant = Number.parseInt(str.slice(brackIdx + 5, str.length - 1));
+                    if (expr1 === null || Number.isNaN(constant)) return null;
+                    return new exprCstr.power(expr1, constant);
+                }
+                let expr2 = helper.expr.parse(str.slice(brackIdx + 5, str.length - 1));
+                if (expr1 === null || expr2 === null) return null;
+                if (op === "+") {
+                    return new exprCstr.sum(expr1, expr2);
+                } else if (op === "-") {
+                    return new exprCstr.sum(expr1, new exprCstr.coeff(-1, expr2));
+                } else if (op === "/") {
+                    return new exprCstr.quotient(expr1, expr2);
+                } else return null;
+            }
+
+            // etothe
+            else if (str.length > 3 && str.slice(0, 3) === "e^{") {
+                if (str.charAt(str.length - 1) !== "}") return null;
+                let expr = helper.expr.parse(str.slice(3, str.length - 1));
+                if (expr === null) return null;
+                return new exprCstr.etothe(expr);
+            }
+
+            // constant
+            let match = str.match(/^\-?\d+$/);
+            if (match) {
+                return new exprCstr.constant(Number.parseInt(str));
+            }
+            
+            // no matches
+            else return null;
         },
     },
 }
