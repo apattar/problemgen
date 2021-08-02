@@ -334,6 +334,9 @@ let helper =
         },
 
         parse: function(str) {
+            // TODO this is originally intended for debugging, but
+            // it might serve as a starting point for a better parser
+            
             // accepts only specific syntax, and returns null on parsing error
             // [] for sum/difference/quotient/power, {} for coeff,
             // () for product, e^{} for etothe

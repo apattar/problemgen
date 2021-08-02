@@ -7,7 +7,10 @@ let settings =
     max: 6,
     minDim: 2,
     maxDim: 3,
-    computationLevel: "int",  // "frac", "sqrt", "complex" - TODO implement this
+    minDerivSteps: 2, // "this corresponds roughly to the number of steps you would need to differentiate an expression."
+    maxDerivSteps: 3,
+    colorscheme: "light", // | dark | custom - have this be the first thing that loads
+    // computationLevel: "int",  // "frac", "sqrt", "complex" - TODO implement this
     genShortcut: "g",
     solShortcut: "s",
     sbsShortcut: "t",

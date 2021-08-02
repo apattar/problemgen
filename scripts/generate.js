@@ -27,6 +27,9 @@ let generate =
 
     // let exprLV2 = ["coeff", "sum", "product", "quotient", "power", "etothe", "trig"];
 
+    // there might be a way to guarantee that new levels actually correspond to new steps.
+    // Have a way to restrict types at lower levels? Like pass in a list of restricted types?
+    // Also have a way to restrict the types for the second expression given the type for the first?
     expr: function(steps, variables) {
         // variables is like ["x", "y"]
         if (steps <= 0) {
@@ -64,7 +67,6 @@ let generate =
             let tfn = trigFns[Math.floor(Math.random() * trigFns.length)];
             res = new exprCstr[tfn](generate.expr(steps - 1, variables));
         }
-        console.log(res);
         helper.expr.mergeMult(res);
         return res;
     }

@@ -145,18 +145,22 @@ let toTeX =
         } else if (e.type === "constant") {
             return e.constant.toString();
         } else if (e.type === "coeff") {
+            let lead = (e.constant === -1) ? "-" : e.constant.toString();
             if ("x y z product power etothe".split(" ").concat(trigFns).includes(e.expr.type)) {
-                return e.constant.toString() + "{" + toTeX.expr(e.expr) + "}";
-            } else return e.constant.toString() + "\\left( " +
+                return lead + "{" + toTeX.expr(e.expr) + "}";
+            } else return lead + "\\left( " +
                           toTeX.expr(e.expr) + " \\right)";
-        } else if (e.type === "sum") {
-            let expr1TeX = "{" + toTeX.expr(e.expr1) + "}";
+        } else if (e.type === "sum") {  // if expr2 is a difference, needs parens. That's the only case
+            let expr1TeX = "{" + toTeX.expr(e.expr1) + "} ";
             let retval = helper.expr.isNegative(e.expr2);
-            if (retval === null) {
-                return "{" + toTeX.expr(e.expr1) + "} + {" + toTeX.expr(e.expr2) + "}";
-            } else {
-                return "{" + toTeX.expr(e.expr1) + "} - {" + toTeX.expr(retval) + "}";
+            let expr2TeX = (retval === null) ?
+                ("+ {" + toTeX.expr(e.expr2) + "}") :
+                ("- {" + toTeX.expr(retval) + "}");
+            let rawExpr2TeX = expr2TeX.slice(3, expr2TeX.length - 1);
+            if (rawExpr2TeX.search(/ \- /) !== -1) {
+                expr2TeX = expr2TeX.slice(0, 2) + "\\left( " + rawExpr2TeX + " \\right)";
             }
+            return expr1TeX + expr2TeX;
         } else if (e.type === "product") {  // product always has parens
             return "\\left(" + toTeX.expr(e.expr1) + "\\right)\\left(" + toTeX.expr(e.expr2) + "\\right)";
         } else if (e.type === "quotient") {

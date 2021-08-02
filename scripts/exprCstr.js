@@ -3,6 +3,12 @@
 // you should work all possible simplification into these constructors.
 // when you want to show steps, you can test in the sbsNode function itself
 // before using the constructors
+
+// you could have a function that probes recursively into the structure,
+// and returns after making one simplification, and then another that does
+// many simplifications at once for the generator
+
+// the one-step simplifier can also return text describing what was done
 let exprCstr =
 {
     x: function() {
@@ -47,6 +53,9 @@ let exprCstr =
         }
     },
     product: function(expr1, expr2) {
+        // maybe instead, if either is a constant delegate to coeff
+        // which will take care of zeros and ones
+        // and if both are constants, multiply and delegate to constant
         let expr1is0 = expr1.type === "constant" && expr1.constant === 0;
         let expr2is0 = expr2.type === "constant" && expr2.constant === 0;
         let expr1is1 = expr1.type === "constant" && expr1.constant === 1;

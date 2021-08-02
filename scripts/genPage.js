@@ -105,10 +105,9 @@ let genAndShow =
     },
 
     derivative: function() {
-        let steps = helper.randint(2, 3);
+        let steps = helper.randint(settings.minDerivSteps, settings.maxDerivSteps);
         activeProb.val1 = generate.expr(steps, ["x"]);
 
-        console.log(activeProb.val1);
         genText.textContent = "\\[" + toTeX.expr(activeProb.val1) + "\\]";
     }
 }
@@ -216,6 +215,21 @@ typeButtons.forEach(function(b1) {
         genButton.click();
     }
 });
+
+// settings dialog
+let settingsDialogCtnr = document.getElementById("settings-dialog-container");
+document.getElementById("change-settings-button").onclick = function() {
+    settingsDialogCtnr.classList.remove("inactive");
+}
+document.getElementById("settings-save-changes-button").onclick = function() {
+    // TODO update the settings global variable with changes to settings
+    settingsDialogCtnr.classList.add("inactive");
+}
+document.getElementById("settings-cancel-button").onclick = function() {
+    // reset settings controls to their defaults?
+    settingsDialogCtnr.classList.add("inactive");
+}
+
 
 // set up first problem, based on first item in list
 // TODO this stuff executes only after everything is loaded
