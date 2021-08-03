@@ -217,24 +217,75 @@ let helper =
     },
 
     expr: {
-        mergeMult: function(e) {
+        zerosAndOnesAll: function(e) {
+            // gets rid of special zeros and ones from the outside in, using these rules:
+
+            // if coeff is 0, whole thing 0
+            // if coeff is 1, no coeff needed
+            // if power is 0, whole thing 1
+            // if power is 1, no power needed
+            // if quotient has division by 0, uh oh!
+            // if quotient has num as 0, whole thing 0
+            // if quotient has denom as 1, no quotient needed
+            // if etothe has exp 0, whole thing 1
+            // if one of the expressions in a sum is 0, no need for sum
+        },
+
+        zerosAndOnesStep: function(e) {
+            // version of above function that only applies one step,
+            // returning the new expression along with text describing
+            // the simplification that was made.
+        },
+
+        rearrange: function(e) {
+            // puts expressions into a more uniform format, so they can
+            // be more easily simplified.
+
+            // REARRANGING RULES (these only change the look of expressions, but they do change look, so they're important!)
+            // maybe these should all be applied at once, w/ text "rearranging"
+            
+            // products should not have coeffs as either of their expressions; move them to the outside.
+            // if exactly one of a product's expressions is a constant, make coeff.
+            // quotients? Don't do anything with quotients just yet
+
+        },
+
+        simplifyAll: function(e) {
+            // REQUIRES: expression e has been rearranged.
             // this function inductively applies a series of rules.
             // i.e. it applies them to interior expressions, then enforces
             // them on the outer expression with the assumption that all
             // interior expressions follow the rules.
 
-            // (1) coeff types should not be directly nested.
-            // (2) products should not have either of their expressions as
-            //      coeffs or constants.
-            // (3) quotients should not have either of their expressions as
-            //      coeffs. (Constants are fine, but see next rule)
-            // (4) if a coeff type has a quotient inside it whose numerator
-            //      is a constant, the coefficient should be merged into it.
 
-            // TODO merge variables too
-            // of the same type with the same power.
-            // Works by recursively merging all sub-expressions, then
-            // doing the merging at top level.
+            // MULTIPLICATION MERGING RULES - CONSTANTS
+            
+            // coeff types should not be directly nested.
+            // if coeff has a constant as its expr, multiply them
+            // if product is both constants, multiply them.
+            // multiply nested powers
+            // if etothe has power around it, make it a coefficient of the etothe's expression
+
+            // MULTIPLICATION MERGING RULES - VARIABLES
+
+            // if a product has two variables of the same type (might be in powers), merge them into a power
+            // if a product has two etothes, merge into an etothe sum
+
+            // ADDITION MERGING RULES - CONSTANTS
+            // ADDITION MERGING RULES - VARIABLES
+
+
+            // there are two possible sets of rules for quotients.
+            // either add the following rules to the following stages:
+            //      (REARRANGE) if there's anything multiplied on the outside of a quotient, move it to the quotient's numerator.
+            //      (END OF EVERYTHING) if expression is sum wherein one is quotient, use common denominators to merge everything.
+            // or, do this:
+            //      (REARRANGE) take everything out of the numerator, and put it into a product or coeff.
+            // with no common denominator merging at the end. Alternatively, you can do some sort of test to see if merging would
+            // be easy (if they both have the same common denom already, for example), and merge them only in that case
+            // or, you could not do anything with the quotients.
+            // This could be one of the settings. But you might want to see all three simplifications at once, so there should be a way to do that
+
 
             // remember - never modify expressions in-place!
             // there might be other things referencing them
@@ -303,8 +354,11 @@ let helper =
                 helper.expr.mergeMult(e.expr);
             }
         },
-        mergePlus: function(e) {
-
+        
+        simplifyStep: function(e) {
+            // version of above function that returns one-step simplified expression,
+            // as well as text describing the simplification
+            
         },
 
         isNegative: function(e) {
@@ -336,6 +390,8 @@ let helper =
         parse: function(str) {
             // TODO this is originally intended for debugging, but
             // it might serve as a starting point for a better parser
+            // you can work on it to make it accept LaTeX
+            // or other unambiguous paren-based input methods
             
             // accepts only specific syntax, and returns null on parsing error
             // [] for sum/difference/quotient/power, {} for coeff,
