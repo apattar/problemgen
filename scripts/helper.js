@@ -266,13 +266,32 @@ let helper =
                 
                 return exprCstr.sum(expr1Simplified, expr2Simplified);
             } else if (e.type === "product") {
+                // check, then apply to inside, then check again
+                if (e.expr1.type === "constant") {
+                    // they must both be constants, based on the constructors' properties
+                    if (e.expr1.constant === 0 || e.expr2.constant === 0)
+                        return new exprCstr.constant(0);
+                    if (e.expr1.constant === 1) e.expr2;  // these are constants, no need to simplify
+                    if (e.expr2.constant === 1) e.expr1;
+                }
+
                 let expr1Simplified = helper.expr.zerosAndOnesAll(e.expr1);
                 let expr2Simplified = helper.expr.zerosAndOnesAll(e.expr2);
-                let res = new exprCstr.product(expr1Simplified, expr2Simplified);
-                // and just in case the product became a coeff with a zero or one constant:
-                if (res.type === "coeff")
-                    res = helper.expr.zerosAndOnesAll(res);
-                return res;
+                let newExpr = new exprCstr.product(expr1Simplified, expr2Simplified);
+
+                // just in case the product became a coeff with a zero or one constant:
+                if (newExpr.type === "coeff")
+                    return helper.expr.zerosAndOnesAll(newExpr);
+
+                if (newExpr.expr1.type === "constant") {
+                    // they are both constants
+                    if (newExpr.expr1.constant === 0 || newExpr.expr2.constant === 0)
+                        return new exprCstr.constant(0);
+                    if (newExpr.expr1.constant === 1) return newExpr.expr2;
+                    if (newExpr.expr2.constant === 1) return newExpr.expr1;
+                }
+    
+                return newExpr;
             } else if (e.type === "quotient") {
                 // check, then apply to inside, then check again
                 if (e.expr2.type === "constant" && e.expr2.constant === 1)
@@ -297,9 +316,16 @@ let helper =
                     return helper.expr.zerosAndOnesAll(e.expr);
                 else return new exprCstr.power(helper.expr.zerosAndOnesAll(e.expr), e.constant);
             } else if (e.type === "etothe") {
+                // since this is not guaranteed to be a constant, need to check, simplify, then check again
                 if (e.expr.type === "constant" && e.expr.constant === 0)
                     return new exprCstr.constant(1);
-                else return new exprCstr.etothe(helper.expr.zerosAndOnesAll(e.expr));
+
+                let exprSimplified = helper.expr.zerosAndOnesAll(e.expr);
+
+                if (exprSimplified.type === "constant" && exprSimplified.constant === 0)
+                    return new exprCstr.constant(1);
+
+                return new exprCstr.etothe(exprSimplified);
             } else if (trigFns.includes(e.type)) {
                 // perhaps you can add some of the simple 0 evaluation to this, but for now, just apply recursively
                 return new exprCstr[e.type](helper.expr.zerosAndOnesAll(e.expr));
@@ -315,6 +341,8 @@ let helper =
         },
 
         simplifyAll: function(e) {
+            // what if nothing here can result in an extra zero or one in the wrong place? Then you'll know that you only have to apply zerosAndOnesAll once
+
             // REQUIRES: expression e has been rearranged.
             // this function inductively applies a series of rules.
             // i.e. it applies them to interior expressions, then enforces
@@ -328,6 +356,7 @@ let helper =
             
             // coeff types should not be directly nested.
             // if product is both constants, multiply them.
+            // if product is both coeffs, multiply the coeffs and move them to the outside.
             // multiply nested powers
             // if etothe has power around it, make it a coefficient of the etothe's expression
 
