@@ -41,7 +41,7 @@ let generate =
         if (fn === "coeff") {
             let coefficient = helper.randint(settings.min, settings.max);
             while (coefficient === 0)
-                coefficient = helper.randint(settings.min, settings.max);
+                coefficient = helper.randint(settings.min, settings.max);   // make sure it can't just be zero, or this loops infinitely
             res = new exprCstr.coeff(coefficient, generate.expr(steps - 1, variables));
         } else if (fn === "sum") {
             // have chance of one being a constant?
@@ -54,6 +54,7 @@ let generate =
             // have chance of one being a constant?
             res = new exprCstr.quotient(generate.expr(steps - 1, variables),
                                          generate.expr(steps - 1, variables));
+            // TODO make it impossible to generate 0 in the denominator
         } else if (fn === "power") {
             // since there's a quotient type, negative powers not necessary
             // 7/10 chance of 2, 1/5 chance of 3, 1/10 chance of 4

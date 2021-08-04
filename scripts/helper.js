@@ -217,29 +217,11 @@ let helper =
     },
 
     expr: {
-        zerosAndOnesAll: function(e) {
-            // gets rid of special zeros and ones from the outside in, using these rules:
-
-            // if coeff is 0, whole thing 0
-            // if coeff is 1, no coeff needed
-            // if power is 0, whole thing 1
-            // if power is 1, no power needed
-            // if quotient has division by 0, uh oh!
-            // if quotient has num as 0, whole thing 0
-            // if quotient has denom as 1, no quotient needed
-            // if etothe has exp 0, whole thing 1
-            // if one of the expressions in a sum is 0, no need for sum
-        },
-
-        zerosAndOnesStep: function(e) {
-            // version of above function that only applies one step,
-            // returning the new expression along with text describing
-            // the simplification that was made.
-        },
-
         rearrange: function(e) {
             // puts expressions into a more uniform format, so they can
             // be more easily simplified.
+            // if no rearranging was performed, returns null; otherwise, returns
+            // the rearranged expression.
 
             // REARRANGING RULES (these only change the look of expressions, but they do change look, so they're important!)
             // maybe these should all be applied at once, w/ text "rearranging"
@@ -248,6 +230,74 @@ let helper =
             // if exactly one of a product's expressions is a constant, make coeff.
             // quotients? Don't do anything with quotients just yet
 
+        },
+
+        zerosAndOnesAll: function(e) {
+            // gets rid of special zeros and ones from the outside in
+            // (i.e. does outer expression before recursively
+            // applying to inner expression) and returns (maybe) modified
+            // expression
+
+            if (e.type === "coeff") {
+                if (e.constant === 0) return new exprCstr.constant(0);
+                else if (e.constant === 1)
+                    return helper.expr.zerosAndOnesAll(e.expr);
+                else return new exprCstr.coeff(e.constant, helper.expr.zerosAndOnesAll(e.expr));
+            } else if (e.type === "sum") {
+                // check, then apply to inside, then check again
+                if (e.expr1.type === "constant" && e.expr1.constant === 0)
+                    return helper.expr.zerosAndOnesAll(e.expr2);
+                if (e.expr2.type === "constant" && e.expr2.constant === 0)
+                    return helper.expr.zerosAndOnesAll(e.expr1);
+
+                let expr1Simplified = helper.expr.zerosAndOnesAll(e.expr1);
+                let expr2Simplified = helper.expr.zerosAndOnesAll(e.expr2);
+                
+                if (e.expr1.type === "constant" && e.expr1.constant === 0)
+                    return helper.expr.zerosAndOnesAll(e.expr2);
+                if (e.expr2.type === "constant" && e.expr2.constant === 0)
+                    return helper.expr.zerosAndOnesAll(e.expr1);
+                
+                return exprCstr.sum(expr1Simplified, expr2Simplified);
+            } else if (e.type === "quotient") {
+                // check, then apply to inside, then check again
+                if (e.expr2.type === "constant" && e.expr2.constant === 1)
+                    return helper.expr.zerosAndOnesAll(e.expr1);
+                if (e.expr1.type === "constant" && e.expr1.constant === 0)
+                    return new exprCstr.constant(0);
+
+                let numSimplified = helper.expr.zerosAndOnesAll(e.expr1);
+                let denSimplified = helper.expr.zerosAndOnesAll(e.expr2);
+
+                if (numSimplified.type === "constant" && numSimplified.constant === 0)
+                    return new exprCstr.constant(0);
+                if (denSimplified.type === "constant" && denSimplified.constant === 1)
+                    return helper.expr.zerosAndOnesAll(e.expr1);
+                // TODO check for zero denominator? You can easily modify
+                // other clauses to simplify the inside so zero denominators will always be caught
+                // but it's unnecessary if it's impossible to generate something with a zero denominator
+                return new exprCstr.quotient(numSimplified, denSimplified);
+            } else if (e.type === "power") {
+                if (e.constant === 0) return new exprCstr.constant(1);
+                else if (e.constant === 1)
+                    return helper.expr.zerosAndOnesAll(e.expr);
+                else return new exprCstr.power(helper.expr.zerosAndOnesAll(e.expr), e.constant);
+            } else if (e.type === "etothe") {
+                if (e.expr.type === "constant" && e.expr.constant === 0)
+                    return new exprCstr.constant(1);
+                else return new exprCstr.etothe(helper.expr.zerosAndOnesAll(e.expr));
+            } else if (trigFns.includes(e.type)) {
+                // perhaps you can add some of the simple 0 evaluation to this, but for now, just apply recursively
+                return new exprCstr[e.type](helper.expr.zerosAndOnesAll(e.expr));
+            }
+
+            return e;   // in case of x, y, z, constant, no changes needed, and no need to apply recursively
+        },
+
+        zerosAndOnesStep: function(e) {
+            // version of above function that only applies one step,
+            // returning the new expression along with text describing
+            // the simplification that was made.
         },
 
         simplifyAll: function(e) {
