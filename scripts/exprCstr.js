@@ -9,6 +9,18 @@
 // many simplifications at once for the generator
 
 // the one-step simplifier can also return text describing what was done
+
+
+// okay, here are the final rules.
+// if it's something that would be done when writing an expression for the first time because it's obvious for cosmetic purposes, it can
+// go into the constructors.
+// it can then be relied on in the simplification functions.
+
+// here are the rearrangements so far:
+
+// if a coeff's expr is a constant, make it a product.
+// if exactly one of a product's exprs is a constant, make it a coeff.
+
 let exprCstr =
 {
     x: function() {
@@ -25,14 +37,15 @@ let exprCstr =
         this.constant = constant;
     },
     coeff: function(constant, expr) {
-        // if (expr.type === "constant") {
-        //     this.type = "constant";
-        //     this.constant = constant * expr.constant;
-        // } else {
-        this.type = "coeff";
-        this.constant = constant;
-        this.expr = expr;
-        // }
+        if (expr.type === "constant") {
+            this.type = "product";
+            this.expr1 = new exprCstr.constant(constant);
+            this.expr2 = expr;
+        } else {
+            this.type = "coeff";
+            this.constant = constant;
+            this.expr = expr;
+        }
     },
     sum: function(expr1, expr2) {
         this.type = "sum";
@@ -40,25 +53,21 @@ let exprCstr =
         this.expr2 = expr2;
     },
     product: function(expr1, expr2) {
-        // maybe instead, if either is a constant delegate to coeff
-        // which will take care of zeros and ones
-        // and if both are constants, multiply and delegate to constant
-        // let expr1is0 = expr1.type === "constant" && expr1.constant === 0;
-        // let expr2is0 = expr2.type === "constant" && expr2.constant === 0;
-        // let expr1is1 = expr1.type === "constant" && expr1.constant === 1;
-        // let expr2is1 = expr2.type === "constant" && expr2.constant === 1;
-        // if (expr1is0 || expr2is0) {
-        //     this.type = "constant";
-        //     this.constant = 0;
-        // } else if (expr1is1) {
-        //     Object.assign(this, expr2);
-        // } else if (expr2is1) {
-        //     Object.assign(this, expr1);
-        // } else {
-        this.type = "product";
-        this.expr1 = expr1;
-        this.expr2 = expr2;
-        // }
+        let expr1IsConst = expr1.type === "constant";
+        let expr2IsConst = expr2.type === "constant";
+        if (expr1IsConst && !expr2IsConst) {
+            this.type = "coeff";
+            this.constant = expr1.constant;
+            this.expr = expr2;
+        } else if (expr2IsConst && !expr1IsConst) {
+            this.type = "coeff";
+            this.constant = expr2.constant;
+            this.expr = expr1;
+        } else {
+            this.type = "product";
+            this.expr1 = expr1;
+            this.expr2 = expr2;
+        }
     },
     quotient: function(expr1, expr2) {
         this.type = "quotient";

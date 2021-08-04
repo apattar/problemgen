@@ -218,17 +218,23 @@ let helper =
 
     expr: {
         rearrange: function(e) {
+            // I think the end result is that this function isn't necessary.
+            // Because the rules are either obvious cosmetic changes that are enough to just put in the constructors so they can be relied on,
+            // or they can just be handled for in simplify.
+
             // puts expressions into a more uniform format, so they can
             // be more easily simplified.
             // if no rearranging was performed, returns null; otherwise, returns
             // the rearranged expression.
 
             // REARRANGING RULES (these only change the look of expressions, but they do change look, so they're important!)
-            // maybe these should all be applied at once, w/ text "rearranging"
+            // these should all be applied at once, w/ text "rearranging"
             
-            // products should not have coeffs as either of their expressions; move them to the outside.
             // if exactly one of a product's expressions is a constant, make coeff.
+            // products should not have coeffs as either of their expressions; move them to the outside. Maybe this isn't necessary? You can just add a clause to the multiplication merging simplification steps to handle this case and merge those two coefficients.
             // quotients? Don't do anything with quotients just yet
+
+            // make sure to always apply recursively!
 
         },
 
@@ -259,6 +265,14 @@ let helper =
                     return helper.expr.zerosAndOnesAll(e.expr1);
                 
                 return exprCstr.sum(expr1Simplified, expr2Simplified);
+            } else if (e.type === "product") {
+                let expr1Simplified = helper.expr.zerosAndOnesAll(e.expr1);
+                let expr2Simplified = helper.expr.zerosAndOnesAll(e.expr2);
+                let res = new exprCstr.product(expr1Simplified, expr2Simplified);
+                // and just in case the product became a coeff with a zero or one constant:
+                if (res.type === "coeff")
+                    res = helper.expr.zerosAndOnesAll(res);
+                return res;
             } else if (e.type === "quotient") {
                 // check, then apply to inside, then check again
                 if (e.expr2.type === "constant" && e.expr2.constant === 1)
@@ -307,11 +321,12 @@ let helper =
             // them on the outer expression with the assumption that all
             // interior expressions follow the rules.
 
+            // these functions are just about applying rules. You can change the orders in which the rules are applied all you like.
+
 
             // MULTIPLICATION MERGING RULES - CONSTANTS
             
             // coeff types should not be directly nested.
-            // if coeff has a constant as its expr, multiply them
             // if product is both constants, multiply them.
             // multiply nested powers
             // if etothe has power around it, make it a coefficient of the etothe's expression

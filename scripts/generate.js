@@ -68,7 +68,7 @@ let generate =
             let tfn = trigFns[Math.floor(Math.random() * trigFns.length)];
             res = new exprCstr[tfn](generate.expr(steps - 1, variables));
         }
-        helper.expr.mergeMult(res);
+        // helper.expr.mergeMult(res);
         return res;
     }
 }
