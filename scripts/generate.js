@@ -30,8 +30,10 @@ let generate =
     // there might be a way to guarantee that new levels actually correspond to new steps.
     // Have a way to restrict types at lower levels? Like pass in a list of restricted types?
     // Also have a way to restrict the types for the second expression given the type for the first?
+
+    // make sure that it is impossible to generate an expression that simplifies to zero.
     expr: function(steps, variables) {
-        // variables is like ["x", "y"]
+        // variables argument should be like ["x", "y"]
         if (steps <= 0) {
             let choice = variables[Math.floor(Math.random() * variables.length)];
             return new exprCstr[choice]();
@@ -40,11 +42,11 @@ let generate =
         let fn = exprLV2[Math.floor(Math.random() * exprLV2.length)];
         if (fn === "coeff") {
             let coefficient = helper.randint(settings.min, settings.max);
-            while (coefficient === 0)
-                coefficient = helper.randint(settings.min, settings.max);   // make sure it can't just be zero, or this loops infinitely
+            while (coefficient === 0 || coefficient === 1)
+                coefficient = helper.randint(settings.min, settings.max);   // make sure it can't just be zero and/or one, or this loops infinitely
             res = new exprCstr.coeff(coefficient, generate.expr(steps - 1, variables));
         } else if (fn === "sum") {
-            // have chance of one being a constant?
+            // have chance of one being a nonzero constant?
             res = new exprCstr.sum(generate.expr(steps - 1, variables),
                                     generate.expr(steps - 1, variables));
         } else if (fn === "product") {
@@ -68,7 +70,8 @@ let generate =
             let tfn = trigFns[Math.floor(Math.random() * trigFns.length)];
             res = new exprCstr[tfn](generate.expr(steps - 1, variables));
         }
-        // helper.expr.mergeMult(res);
+        res = helper.expr.simplifyAll(res);
+        // res = helper.expr.zerosAndOnesAll(res);    // is this necessary? There is no way to have a zero or one in the wrong spot, right
         return res;
     }
 }

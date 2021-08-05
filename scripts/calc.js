@@ -252,37 +252,42 @@ let calc =
         // e.expr<x> should never appear on its own without a calc.derivative() or
         // Object.assign({}, ) (i.e. shallow copy) around it.
         // you can easily write a recursive deep copy function, but is that necessary?
+        
+        let res = null;
+        
         if (e.type === wrt) {
-            return (new exprCstr.constant(1));
+            res = new exprCstr.constant(1);
         } else if (e.type === "constant" || e.type === "x" || e.type === "y" || e.type === "z") {
-            return (new exprCstr.constant(0));
+            res = new exprCstr.constant(0);
         } else if (e.type === "coeff") {
-            return (new exprCstr.coeff(e.constant, calc.derivative(e.expr, wrt)));
+            res = new exprCstr.coeff(e.constant, calc.derivative(e.expr, wrt));
         } else if (e.type === "sum") {
-            return (new exprCstr.sum(calc.derivative(e.expr1, wrt), calc.derivative(e.expr2, wrt)));
+            res = new exprCstr.sum(calc.derivative(e.expr1, wrt), calc.derivative(e.expr2, wrt));
         } else if (e.type === "product") {
-            return (new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr1), calc.derivative(e.expr2, wrt)),
-                                    new exprCstr.product(calc.derivative(e.expr1, wrt), Object.assign({}, e.expr2))));
+            res = new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr1), calc.derivative(e.expr2, wrt)),
+                                    new exprCstr.product(calc.derivative(e.expr1, wrt), Object.assign({}, e.expr2)));
         } else if (e.type === "quotient") {
-            return new exprCstr.quotient(new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr2), calc.derivative(e.expr1, wrt)),
+            res = new exprCstr.quotient(new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr2), calc.derivative(e.expr1, wrt)),
                                          new exprCstr.coeff(-1, new exprCstr.product(calc.derivative(e.expr2, wrt), Object.assign({}, e.expr1)))),
                                          new exprCstr.power(Object.assign({}, e.expr2), 2));
         } else if (e.type === "power") {
-            return (new exprCstr.product(new exprCstr.coeff(e.constant, new exprCstr.power(Object.assign({}, e.expr), e.constant - 1)), calc.derivative(e.expr, wrt)));
+            res = new exprCstr.product(new exprCstr.coeff(e.constant, new exprCstr.power(Object.assign({}, e.expr), e.constant - 1)), calc.derivative(e.expr, wrt));
         } else if (e.type === "etothe") {
-            return new exprCstr.product(Object.assign({}, e), calc.derivative(e.expr, wrt));
+            res = new exprCstr.product(Object.assign({}, e), calc.derivative(e.expr, wrt));
         } else if (e.type === "sin") {
-            return (new exprCstr.product(new exprCstr.cos(Object.assign({}, e.expr)), calc.derivative(e.expr, wrt)));
+            res = new exprCstr.product(new exprCstr.cos(Object.assign({}, e.expr)), calc.derivative(e.expr, wrt));
         } else if (e.type === "cos") {
-            return (new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.sin(Object.assign({}, e.expr)), calc.derivative(e.expr, wrt))));
+            res = new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.sin(Object.assign({}, e.expr)), calc.derivative(e.expr, wrt)));
         } else if (e.type === "tan") {
-            return new exprCstr.power(new exprCstr.sec(Object.assign({}, e.expr)), 2);
+            res = new exprCstr.power(new exprCstr.sec(Object.assign({}, e.expr)), 2);
         } else if (e.type === "csc") {
-            return new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.product(new exprCstr.csc(Object.assign({}, e.expr)), new exprCstr.cot(Object.assign({}, e.expr))), calc.derivative(e.expr, wrt)));
+            res = new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.product(new exprCstr.csc(Object.assign({}, e.expr)), new exprCstr.cot(Object.assign({}, e.expr))), calc.derivative(e.expr, wrt)));
         } else if (e.type === "sec") {
-            return (new exprCstr.product(new exprCstr.product(new exprCstr.sec(Object.assign({}, e.expr)), new exprCstr.tan(Object.assign({}, e.expr))), calc.derivative(e.expr, wrt)));
+            res = new exprCstr.product(new exprCstr.product(new exprCstr.sec(Object.assign({}, e.expr)), new exprCstr.tan(Object.assign({}, e.expr))), calc.derivative(e.expr, wrt));
         } else if (e.type === "cot") {
-            return new exprCstr.coeff(-1, new exprCstr.power(new exprCstr.csc(Object.assign({}, e.expr)), 2));
+            res = new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.power(new exprCstr.csc(Object.assign({}, e.expr)), 2), calc.derivative(e.expr, wrt)));
         }
+
+        return helper.expr.simplifyAll(helper.expr.zerosAndOnesAll(res));
     }
 }
