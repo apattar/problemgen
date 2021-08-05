@@ -279,7 +279,7 @@ let calc =
         } else if (e.type === "cos") {
             res = new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.sin(Object.assign({}, e.expr)), calc.derivative(e.expr, wrt)));
         } else if (e.type === "tan") {
-            res = new exprCstr.power(new exprCstr.sec(Object.assign({}, e.expr)), 2);
+            res = new exprCstr.product(new exprCstr.power(new exprCstr.sec(Object.assign({}, e.expr)), 2), calc.derivative(e.expr, wrt));
         } else if (e.type === "csc") {
             res = new exprCstr.coeff(-1, new exprCstr.product(new exprCstr.product(new exprCstr.csc(Object.assign({}, e.expr)), new exprCstr.cot(Object.assign({}, e.expr))), calc.derivative(e.expr, wrt)));
         } else if (e.type === "sec") {

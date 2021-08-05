@@ -364,6 +364,7 @@ let helper =
 
             // if a product has two variables of the same type (might be in powers), merge them into a power
             // if a product has two etothes, merge into an etothe sum
+            // if a quotient has two variables of the same type (might be powers), subtract the powers into a simplified power or quotient
 
             // ADDITION MERGING RULES - CONSTANTS
             // ADDITION MERGING RULES - VARIABLES
@@ -412,7 +413,27 @@ let helper =
                 
                 else if (expr1Simplified.type === "coeff" && expr2Simplified.type === "coeff")
                     return new exprCstr.coeff(expr1Simplified.constant * expr2Simplified.constant,
-                            new exprCstr.product(expr1Simplified.expr, expr2Simplified.expr));
+                            helper.expr.simplifyAll(new exprCstr.product(expr1Simplified.expr, expr2Simplified.expr)));  // need to handle for if these new ones are mergeable
+
+                else if (exprVariables.includes(expr1Simplified.type) && expr1Simplified.type === expr2Simplified.type)
+                    // both are the same type of variable
+                    return new exprCstr.power(new exprCstr[expr1Simplified.type](), 2);
+
+                else if (exprVariables.includes(expr1Simplified.type) &&
+                        (expr2Simplified.type === "power" && expr1Simplified.type === expr2Simplified.expr.type))
+                    // first is a variable and second is a power of that variable
+                    return new exprCstr.power(new exprCstr[expr1Simplified.type](), 1 + expr2Simplified.constant)
+            
+                else if (exprVariables.includes(expr2Simplified.type) &&
+                        (expr1Simplified.type === "power" && expr2Simplified.type === expr1Simplified.expr.type))
+                    // second is a variable and first is a power of that variable
+                    return new exprCstr.power(new exprCstr[expr2Simplified.type](), 1 + expr2Simplified.constant)
+                
+                else if (expr1Simplified.type === "power" && expr2Simplified.type === "power" &&
+                            exprVariables.includes(expr1Simplified.expr.type) &&
+                            expr1Simplified.expr.type === expr2Simplified.expr.type)
+                    // both are powers of the same variable
+                    return new exprCstr.power(new exprCstr[expr1Simplified.expr.type](), expr1Simplified.constant + expr2Simplified.constant);
 
                 // using the constructor again will take care of making it a coeff if necessary
                 else return new exprCstr.product(expr1Simplified, expr2Simplified);

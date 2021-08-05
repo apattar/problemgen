@@ -162,6 +162,13 @@ let showSolution =
     }
 }
 
+let instructionsDictionary =
+{
+    // TODO add instructions in an associative dict here, like:
+    crossProd: "Find the following cross product."
+    // and then TODO implement them
+}
+
 
 // attach event handlers
 

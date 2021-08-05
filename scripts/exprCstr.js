@@ -98,6 +98,7 @@ for (let i = 0; i < trigFns.length; i++) {
     }
 }
 
+let exprVariables = ["x", "y", "z"]
 let exprLV2 = ["coeff", "sum", "product", "quotient", "power", "etothe", "trig"];
 
 // write simplification function that merges constant multipliers and constants in a sum?
