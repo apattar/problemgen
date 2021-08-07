@@ -438,7 +438,55 @@ let helper =
                 // using the constructor again will take care of making it a coeff if necessary
                 else return new exprCstr.product(expr1Simplified, expr2Simplified);
             } else if (e.type === "quotient") {
-                return new exprCstr.quotient(helper.expr.simplifyAll(e.expr1),
+                let expr1Simplified = helper.expr.simplifyAll(e.expr1);
+                let expr2Simplified = helper.expr.simplifyAll(e.expr2);
+                
+                if (exprVariables.includes(expr1Simplified.type) && expr1Simplified.type === expr2Simplified.type)
+                    // both are the same type of variable
+                    return new exprCstr.constant(1);
+
+                else if (exprVariables.includes(expr1Simplified.type) &&
+                        (expr2Simplified.type === "power" && expr1Simplified.type === expr2Simplified.expr.type)) {
+                    // first is a variable and second is a power of that variable
+                    let newDenomPow = expr2Simplified.constant - 1;
+                    if (newDenomPow === 1)
+                        return new exprCstr.quotient(new exprCstr.constant(1), new exprCstr[expr1Simplified.type]());
+                    else
+                        return new exprCstr.quotient(new exprCstr.constant(1),
+                                new exprCstr.power(new exprCstr[expr1Simplified.type](), expr2Simplified.constant - 1));
+                }
+
+
+                else if (exprVariables.includes(expr2Simplified.type) &&
+                        (expr1Simplified.type === "power" && expr2Simplified.type === expr1Simplified.expr.type)) {
+                    // second is a variable and first is a power of that variable
+                    let newDenomPow = expr1Simplified.constant - 1;
+                    if (newDenomPow === 1)
+                        return new exprCstr[expr2Simplified.type]();
+                    else
+                        return new exprCstr.power(new exprCstr[expr2Simplified.type](), newDenomPow);
+                }
+                
+                else if (expr1Simplified.type === "power" && expr2Simplified.type === "power" &&
+                            exprVariables.includes(expr1Simplified.expr.type) &&
+                            expr1Simplified.expr.type === expr2Simplified.expr.type) {
+                    // both are powers of the same variable
+                    let variableName = expr1Simplified.expr.type;
+                    let newDenomPow = expr1Simplified.constant - expr2Simplified.constant;
+                    if (newDenomPow < -1) {
+                        return new exprCstr.quotient(new exprCstr.constant(1), new exprCstr.power(new exprCstr[variableName](), newDenomPow * -1));
+                    } else if (newDenomPow === -1) {
+                        return new exprCstr.quotient(new exprCstr.constant(1), new exprCstr[variableName]());
+                    } else if (newDenomPow === 0) {
+                        return new exprCstr.constant(1);
+                    } else if (newDenomPow === 1) {
+                        return new exprCstr[variableName]();
+                    } else {
+                        return new exprCstr.power(new exprCstr[variableName](), newDenomPow);
+                    }
+                }
+
+                else return new exprCstr.quotient(helper.expr.simplifyAll(e.expr1),
                     helper.expr.simplifyAll(e.expr2));
             } else if (e.type === "power") {
                 let innerSimplified = helper.expr.simplifyAll(e.expr);
