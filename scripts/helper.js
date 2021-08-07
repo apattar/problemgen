@@ -357,6 +357,7 @@ let helper =
             // - coeff types should not be directly nested.
             // - if product is both constants, multiply them.
             // - if product is both coeffs, multiply the coeffs and move them to the outside.
+            // - if one of the product exprs is a coeff, move it to the outside.
             // - multiply nested powers
             // - if etothe has power around it, make it a coefficient of the etothe's expression
 
@@ -415,6 +416,16 @@ let helper =
                     return new exprCstr.coeff(expr1Simplified.constant * expr2Simplified.constant,
                             helper.expr.simplifyAll(new exprCstr.product(expr1Simplified.expr, expr2Simplified.expr)));  // need to handle for if these new ones are mergeable
 
+
+                // move single coefficients to the outside
+                else if (expr1Simplified.type === "coeff")
+                    return new exprCstr.coeff(expr1Simplified.constant,
+                            helper.expr.simplifyAll(new exprCstr.product(expr1Simplified.expr, expr2Simplified)));
+                else if (expr2Simplified.type === "coeff")
+                    return new exprCstr.coeff(expr2Simplified.constant,
+                            helper.expr.simplifyAll(new exprCstr.product(expr1Simplified, expr2Simplified.expr)));
+
+
                 else if (exprVariables.includes(expr1Simplified.type) && expr1Simplified.type === expr2Simplified.type)
                     // both are the same type of variable
                     return new exprCstr.power(new exprCstr[expr1Simplified.type](), 2);
@@ -440,8 +451,46 @@ let helper =
             } else if (e.type === "quotient") {
                 let expr1Simplified = helper.expr.simplifyAll(e.expr1);
                 let expr2Simplified = helper.expr.simplifyAll(e.expr2);
-                
-                if (exprVariables.includes(expr1Simplified.type) && expr1Simplified.type === expr2Simplified.type)
+
+                // deal with coeffs and then call recursively on the remaining stuff
+                // remember that when calling recursively, you may not get a quotient back
+                if (expr1Simplified.type === "coeff" || expr2Simplified.type === "coeff") {
+                    // extract the coeffs from the main expressions
+                    let oldCoeffs = null;
+                    let oldMain = null;
+                    if (expr1Simplified.type === "coeff" && expr2Simplified.type === "coeff") {
+                        oldCoeffs = [expr1Simplified.constant, expr2Simplified.constant];
+                        oldMain = new exprCstr.quotient(expr1Simplified.expr, expr2Simplified.expr)
+                    } else if (expr1Simplified.type === "coeff") {
+                        oldCoeffs = [expr1Simplified.constant, 1];
+                        oldMain = new exprCstr.quotient(expr1Simplified.expr, expr2Simplified);
+                    } else {
+                        oldCoeffs = [expr2Simplified.constant];
+                        oldMain = new exprCstr.quotient(expr1Simplified, expr2Simplified.expr);
+                    }
+
+                    // recursively call simplify on coeff-less quotient, in case there's variable merging necessary
+                    // this could either return a quotient, a constant, or a variable
+                    let newMain = helper.expr.simplifyAll(oldMain);
+
+                    // try to simplify the resulting fraction
+                    let newCoeffs = helper.fracs.simplify(oldCoeffs);
+
+                    if (newMain.type === "quotient") {
+                        // just insert the new coeffs if they're not 1
+                        return new exprCstr.quotient((newCoeffs[0] === 1) ? newMain.expr1 : helper.expr.simplifyAll(new exprCstr.coeff(newCoeffs[0], newMain.expr1)),
+                                                     (newCoeffs[1] === 1) ? newMain.expr2 : helper.expr.simplifyAll(new exprCstr.coeff(newCoeffs[1], newMain.expr2)));
+                    } else if (newCoeffs[1] !== 1) {
+                        // need a denominator anyway
+                        return new exprCstr.quotient((newCoeffs[0] === 1) ? newMain : helper.expr.simplifyAll(new exprCstr.coeff(newCoeffs[0], newMain)),
+                                                     newCoeffs[1]);
+                    } else {
+                        // no need for a denominator
+                        return (newCoeffs[0] === 1) ? newMain : helper.expr.simplifyAll(new exprCstr.coeff(newCoeffs[0], newMain));
+                    }   
+                }
+
+                else if (exprVariables.includes(expr1Simplified.type) && expr1Simplified.type === expr2Simplified.type)
                     // both are the same type of variable
                     return new exprCstr.constant(1);
 

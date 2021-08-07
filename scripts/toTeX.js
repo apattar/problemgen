@@ -145,7 +145,8 @@ let toTeX =
         } else if (e.type === "constant") {
             return e.constant.toString();
         } else if (e.type === "coeff") {
-            let lead = (e.constant === -1) ? "-" : ((e.constant === 1) ? "" : e.constant.toString());
+            if (e.constant === 1) return toTeX.expr(e.expr);
+            let lead = (e.constant === -1) ? "-" : e.constant.toString();
             if ("x y z product power etothe".split(" ").concat(trigFns).includes(e.expr.type)) {
                 return lead + "{" + toTeX.expr(e.expr) + "}";
             } else return lead + "\\left( " +
