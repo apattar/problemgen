@@ -18,8 +18,12 @@
 
 // here are the rearrangements so far:
 
-// if a coeff's expr is a constant, make it a product.
+// if a coeff's expr is a constant, make it a product of two constants.
 // if exactly one of a product's exprs is a constant, make it a coeff.
+// the expr2 of a sum should never be a sum;
+//      modify the nesting so it's always either a non-sum + a non-sum
+//      or a sum + a non-sum. This helps with the toTeX rendering of
+//      strings of sums.
 
 let exprCstr =
 {
@@ -49,8 +53,13 @@ let exprCstr =
     },
     sum: function(expr1, expr2) {
         this.type = "sum";
-        this.expr1 = expr1;
-        this.expr2 = expr2;
+        if (expr2.type === "sum") {
+            this.expr1 = new exprCstr.sum(expr1, expr2.expr1);
+            this.expr2 = expr2.expr2;
+        } else {
+            this.expr1 = expr1;
+            this.expr2 = expr2;
+        }
     },
     product: function(expr1, expr2) {
         let expr1IsConst = expr1.type === "constant";
@@ -74,7 +83,8 @@ let exprCstr =
         this.expr1 = expr1;
         this.expr2 = expr2;
     },
-    power: function(expr, constant) {
+    power: function(expr, constant, calledFrom) {
+        console.log(expr, constant, calledFrom);
         this.type = "power";
         this.expr = expr;
         this.constant = constant;

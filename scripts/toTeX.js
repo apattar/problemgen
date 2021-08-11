@@ -136,6 +136,8 @@ let toTeX =
         // converts an equation object to LaTeX, recursively
         // this should be able to be relied on for any expression, even if
         // it isn't simplified. First order of business, nested coefficients.
+
+        // I think outer things should handle the existence or lack of parens. Each thing in itself should just act as a single expression.
         if (e.type === "x") {
             return "x";
         } else if (e.type === "y") {
@@ -147,37 +149,32 @@ let toTeX =
         } else if (e.type === "coeff") {
             if (e.constant === 1) return toTeX.expr(e.expr);
             let lead = (e.constant === -1) ? "-" : e.constant.toString();
-            if ("x y z product power etothe".split(" ").concat(trigFns).includes(e.expr.type)) {
+            if (["x", "y", "z", "product", "power", "etothe"].includes(e.expr.type) || trigFns.includes(e.expr.type))
                 return lead + "{" + toTeX.expr(e.expr) + "}";
-            } else return lead + "\\left( " +
-                          toTeX.expr(e.expr) + " \\right)";
-        } else if (e.type === "sum") {  // if expr2 is a difference, needs parens. That's the only case
-            let expr1TeX = "{" + toTeX.expr(e.expr1) + "} ";
-            let retval = helper.expr.isNegative(e.expr2);
-            let expr2TeX = (retval === null) ?
-                ("+ {" + toTeX.expr(e.expr2) + "}") :
-                ("- {" + toTeX.expr(retval) + "}");
-            let rawExpr2TeX = expr2TeX.slice(3, expr2TeX.length - 1);
-            if (rawExpr2TeX.search(/ \- /) !== -1) {
-                expr2TeX = expr2TeX.slice(0, 2) + "\\left( " + rawExpr2TeX + " \\right)";
-            }
-            return expr1TeX + expr2TeX;
+            else return lead + "\\left( " + toTeX.expr(e.expr) + " \\right)";
+        } else if (e.type === "sum") {
+            // the right expression of a sum is never a sum or difference;
+            // thus, no parentheses are ever needed around expressions.
+            let modExpr2 = helper.expr.isNegative(e.expr2);
+            return "{" + toTeX.expr(e.expr1) + "}" +
+                ((modExpr2 === null) ? " + {" + toTeX.expr(e.expr2) + "}" :
+                                       " - {" + toTeX.expr(modExpr2) + "}");
         } else if (e.type === "product") {  // product always has parens
             return "\\left(" + toTeX.expr(e.expr1) + "\\right)\\left(" + toTeX.expr(e.expr2) + "\\right)";
         } else if (e.type === "quotient") {
             return "\\dfrac{" + toTeX.expr(e.expr1) + "}{" + toTeX.expr(e.expr2) + "}";
         } else if (e.type === "power") {
             // want nothing on base if x y z constant
-            if ("x y z constant".split(" ").includes(e.expr.type)) {
-                return "{" + toTeX.expr(e.expr) + "}^{" + e.constant + "}";
+            if (["x", "y", "z", "constant"].includes(e.expr.type)) {
+                return "{" + toTeX.expr(e.expr) + "}^{" + e.constant.toString() + "}";
             } else if (trigFns.includes(e.expr.type)) {
-                return "\\" + e.expr.type + "^{" + e.constant + "}\\left( " +
+                return "\\" + e.expr.type + "^{" + e.constant.toString() + "}\\left( " +
                     toTeX.expr(e.expr.expr) + " \\right)";
             } else
-                return "{\\left( " + toTeX.expr(e.expr) + "\\right)}^{" + e.constant + "}";
+                return "{\\left( " + toTeX.expr(e.expr) + "\\right)}^{" + e.constant.toString() + "}";
         } else if (e.type === "etothe") {
             if (e.expr.type === "constant" && e.expr.constant === 1) return "e";
-            if ("x y z constant product".split(" ").concat(trigFns).includes(e.expr.type)) {
+            if (["x", "y", "z", "constant", "product"].concat(trigFns).includes(e.expr.type)) {
                 return "e^{" + toTeX.expr(e.expr) + "}";
             } else return "e^{\\left(" + toTeX.expr(e.expr) + "\\right)}";
         } else { // is a trig function
