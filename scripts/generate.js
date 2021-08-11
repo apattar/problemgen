@@ -61,9 +61,9 @@ let generate =
             // since there's a quotient type, negative powers not necessary
             // 7/10 chance of 2, 1/5 chance of 3, 1/10 chance of 4
             let choice = helper.randint(1, 10);
-            let power = (choice < 8) ? 2 : ((choice < 10 ? 3 : 4));
+            let constant = (choice < 8) ? 2 : ((choice < 10) ? 3 : 4);
             res = new exprCstr.power(generate.expr(steps - 1, variables),
-                                      power);
+                                      constant, "generate.js");
         } else if (fn === "etothe") {
             res = new exprCstr.etothe(generate.expr(steps - 1, variables));
         } else if (fn === "trig") {

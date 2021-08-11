@@ -267,6 +267,7 @@ let calc =
             res = new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr1), calc.derivative(e.expr2, wrt)),
                                     new exprCstr.product(calc.derivative(e.expr1, wrt), Object.assign({}, e.expr2)));
         } else if (e.type === "quotient") {
+            // Fix the fact that it's possible to get quotients that simplify to 1 from this.
             res = new exprCstr.quotient(new exprCstr.sum(new exprCstr.product(Object.assign({}, e.expr2), calc.derivative(e.expr1, wrt)),
                                          new exprCstr.coeff(-1, new exprCstr.product(calc.derivative(e.expr2, wrt), Object.assign({}, e.expr1)))),
                                          new exprCstr.power(Object.assign({}, e.expr2), 2));

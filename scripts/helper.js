@@ -350,7 +350,7 @@ let helper =
             // interior expressions follow the rules.
 
             // these functions are just about applying rules. You can change the orders in which the rules are applied all you like.
-
+            // keep this list of rules somewhere
 
             // MULTIPLICATION MERGING RULES - CONSTANTS
             
@@ -360,14 +360,18 @@ let helper =
             // - if one of the product exprs is a coeff, move it to the outside.
             // - multiply nested powers
             // - if etothe has power around it, make it a coefficient of the etothe's expression
-
+            
             // MULTIPLICATION MERGING RULES - VARIABLES
-
-            // if a product has two variables of the same type (might be in powers), merge them into a power
-            // if a product has two etothes, merge into an etothe sum
-            // if a quotient has two variables of the same type (might be powers), subtract the powers into a simplified power or quotient
+            
+            // - if a product has two variables of the same type (might be in powers), merge them into a power. Do this even if there are coefficients for either
+            // - if a quotient has two variables of the same type (might be powers), subtract the powers into a simplified power or quotient. Do this even if there are coefficients for either
+            // if product or quotient has both etothes, do the addition/subtraction
 
             // ADDITION MERGING RULES - CONSTANTS
+
+            // if a sum has two variables of the same type, make into coeff. Do this even if there are coefficients
+            // if a sum has two powers with the same variable and power, make into coeff with power. Do this even if there are coefficients
+
             // ADDITION MERGING RULES - VARIABLES
 
 
@@ -433,12 +437,12 @@ let helper =
                 else if (exprVariables.includes(expr1Simplified.type) &&
                         (expr2Simplified.type === "power" && expr1Simplified.type === expr2Simplified.expr.type))
                     // first is a variable and second is a power of that variable
-                    return new exprCstr.power(new exprCstr[expr1Simplified.type](), 1 + expr2Simplified.constant)
+                    return new exprCstr.power(new exprCstr[expr1Simplified.type](), 1 + expr2Simplified.constant);
             
                 else if (exprVariables.includes(expr2Simplified.type) &&
                         (expr1Simplified.type === "power" && expr2Simplified.type === expr1Simplified.expr.type))
                     // second is a variable and first is a power of that variable
-                    return new exprCstr.power(new exprCstr[expr2Simplified.type](), 1 + expr2Simplified.constant)
+                    return new exprCstr.power(new exprCstr[expr2Simplified.type](), 1 + expr1Simplified.constant);
                 
                 else if (expr1Simplified.type === "power" && expr2Simplified.type === "power" &&
                             exprVariables.includes(expr1Simplified.expr.type) &&
@@ -453,7 +457,6 @@ let helper =
                 let expr2Simplified = helper.expr.simplifyAll(e.expr2);
 
                 // deal with coeffs and then call recursively on the remaining stuff
-                // remember that when calling recursively, you may not get a quotient back
                 if (expr1Simplified.type === "coeff" || expr2Simplified.type === "coeff") {
                     // extract the coeffs from the main expressions
                     let oldCoeffs = null;
@@ -465,7 +468,7 @@ let helper =
                         oldCoeffs = [expr1Simplified.constant, 1];
                         oldMain = new exprCstr.quotient(expr1Simplified.expr, expr2Simplified);
                     } else {
-                        oldCoeffs = [expr2Simplified.constant];
+                        oldCoeffs = [expr2Simplified.constant, 1];
                         oldMain = new exprCstr.quotient(expr1Simplified, expr2Simplified.expr);
                     }
 
@@ -563,12 +566,13 @@ let helper =
 
         isNegative: function(e) {
             // this function returns null if e is positive
-            // or a positive version of e if e is negative
+            // or a positive version of e (which will be an expr object) if e is negative.
+            // sums are a special case since they aren't one expression; they're considered positive by default.
             if (e.type === "constant" && e.constant < 0) {
                 return new exprCstr.constant(e.constant * -1);
             } else if (e.type === "coeff" && e.constant < 0) {
                 return new exprCstr.coeff(e.constant * -1, e.expr);
-            } else if (e.type === "quotient" && e.expr1.type === "constant" && e.expr1.constant < 0) {
+            } else if (e.type === "quotient" && e.expr1.type === "constant" && e.expr1.constant < 0) {  // TODO you can just call isNegative recursively for quotient?
                 return new exprCstr.quotient(new exprCstr.constant(e.expr1.constant * -1), e.expr2); 
             } else if (e.type === "quotient" && e.expr1.type === "coeff" && e.expr1.constant < 0) {
                 return new exprCstr.quotient(new exprCstr.coeff(e.expr1.constant * -1, e.expr1.expr), e.expr2);
