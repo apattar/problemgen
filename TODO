@@ -1,16 +1,15 @@
 
-- remove simplification from constructors and have a
-  - complete simplification function (you can modify mergeMult for that)
-  - one-step simplification function, that does one simplification at a time
-    and returns some text describing that simplification
+
 - integrate options! the earlier the better
 - figure out loading order; have loading message for MathJax
+- make everything but dialog box stuff non keyboard focusable when the settings dialog is activated?
 - step by step calculator page, with matrix widget integrated
 - print worksheet page, will use all your other stuff
 
 - you should really put credits in the footer. Really all the stuff on the about page should be in a footer
 - arrow keys will automatically switch problem type
 
+- make the design responsive
 
 
 

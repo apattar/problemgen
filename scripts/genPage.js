@@ -106,7 +106,7 @@ let genAndShow =
 
     derivative: function() {
         let steps = helper.randint(settings.minDerivSteps, settings.maxDerivSteps);
-        activeProb.val1 = generate.expr(steps, ["x"]);
+        activeProb.val1 = generate.expr(steps, ["x"], []);
 
         genText.textContent = "\\[" + toTeX.expr(activeProb.val1) + "\\]";
     }

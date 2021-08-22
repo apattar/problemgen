@@ -356,7 +356,7 @@ let helper =
             
             // - coeff types should not be directly nested.
             // - if product is both constants, multiply them.
-            // - if product is both coeffs, multiply the coeffs and move them to the outside.
+            // - if product is both coeffs, multiply the coeffs and move them to the outside. TODO This is what's resulting in the large numbers
             // - if one of the product exprs is a coeff, move it to the outside.
             // - multiply nested powers
             // - if etothe has power around it, make it a coefficient of the etothe's expression
@@ -458,6 +458,8 @@ let helper =
 
                 // deal with coeffs and then call recursively on the remaining stuff
                 if (expr1Simplified.type === "coeff" || expr2Simplified.type === "coeff") {
+                    // TODO TODO TODO --- this should also account for constants as coeffs
+
                     // extract the coeffs from the main expressions
                     let oldCoeffs = null;
                     let oldMain = null;

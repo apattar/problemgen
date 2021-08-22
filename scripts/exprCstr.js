@@ -1,18 +1,7 @@
 
-
-// you should work all possible simplification into these constructors.
-// when you want to show steps, you can test in the sbsNode function itself
-// before using the constructors
-
-// you could have a function that probes recursively into the structure,
-// and returns after making one simplification, and then another that does
-// many simplifications at once for the generator
-
-// the one-step simplifier can also return text describing what was done
-
-
 // okay, here are the final rules.
-// if it's something that would be done when writing an expression for the first time because it's obvious for cosmetic purposes, it can
+// if it's something that would be done when writing an expression for the first time
+// because it's obvious for cosmetic purposes, it can
 // go into the constructors.
 // it can then be relied on in the simplification functions.
 
@@ -83,8 +72,7 @@ let exprCstr =
         this.expr1 = expr1;
         this.expr2 = expr2;
     },
-    power: function(expr, constant, calledFrom) {
-        console.log(expr, constant, calledFrom);
+    power: function(expr, constant) {
         this.type = "power";
         this.expr = expr;
         this.constant = constant;
@@ -96,10 +84,8 @@ let exprCstr =
         this.expr = expr;
     },
 }
-// maybe add a special constant type meant for trig fns & etothes with constants? So they're treated like constants as a whole
-// that's the kind of thing that should be taken care of in the constructors for etothe and trig
 
-let trigFns = ["sin", "cos", "tan", "csc", "sec", "cot"]; // inverse trig?
+// create and add trig function constructors
 for (let i = 0; i < trigFns.length; i++) {
     let tfn = trigFns[i];
     exprCstr[tfn] = function(expr) {
@@ -107,8 +93,3 @@ for (let i = 0; i < trigFns.length; i++) {
         this.expr = expr;
     }
 }
-
-let exprVariables = ["x", "y", "z"]
-let exprLV2 = ["coeff", "sum", "product", "quotient", "power", "etothe", "trig"];
-
-// write simplification function that merges constant multipliers and constants in a sum?
