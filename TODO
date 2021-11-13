@@ -1,4 +1,12 @@
 
+For first release:
+- instructions
+- vecProj and mtxMult sbs nodes
+- simple options
+- branch & remove (all) calculus-related stuff from main
+
+
+
 
 - integrate options! the earlier the better
 - figure out loading order; have loading message for MathJax

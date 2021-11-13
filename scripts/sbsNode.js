@@ -10,17 +10,17 @@ let sbsNode =
         text += " ~~&=~~ \\begin{vmatrix}\
             \\hat{\\mathbf{i}}&\\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\"
             + x[0] + "&" + x[1] + "&" + x[2] + "\\\\"
-            + y[0] + "&" + y[1] + "&" + y[2] + "\\end{vmatrix}\\\\";
+            + y[0] + "&" + y[1] + "&" + y[2] + "\\end{vmatrix}\\\\[3pt]";
             
         text += "~~&=~~ \\langle " +
-            toTeX.prodSum([[x[1], y[2]], [x[2], y[1]]], true) + ",~~ " +
-            toTeX.prodSum([[x[2], y[0]], [x[0], y[2]]], true) + ",~~ " +
-            toTeX.prodSum([[x[0], y[1]], [x[1], y[0]]], true) + "\\rangle\\\\";
+            toTeX.prodSum([[x[1], y[2]], [x[2], y[1]]], true) + ",\\; " +
+            toTeX.prodSum([[x[2], y[0]], [x[0], y[2]]], true) + ",\\; " +
+            toTeX.prodSum([[x[0], y[1]], [x[1], y[0]]], true) + "\\rangle\\\\[3pt]";
             
         text += "~~&=~~ \\langle " +
-            toTeX.sum([x[1] * y[2], -x[2] * y[1]]) + ",~~ " +
-            toTeX.sum([x[2] * y[0], -x[0] * y[2]]) + ",~~ " +
-            toTeX.sum([x[0] * y[1], -x[1] * y[0]]) + "\\rangle\\\\";
+            toTeX.sum([x[1] * y[2], -x[2] * y[1]]) + ",\\; " +
+            toTeX.sum([x[2] * y[0], -x[0] * y[2]]) + ",\\; " +
+            toTeX.sum([x[0] * y[1], -x[1] * y[0]]) + "\\rangle\\\\[3pt]";
         text += "~~&=~~ " + solText.textContent + "\\end{align*}";
 
         // // TODO does this really need to be here? If not, remove
@@ -47,6 +47,7 @@ let sbsNode =
         let fromTeX = toTeX.vecComma(activeProb.val2);
         let tog = calc.dot(activeProb.val1, activeProb.val2);
         let sq = calc.dot(activeProb.val1, activeProb.val1);
+        let sol = calc.vecProj(activeProb.val1, activeProb.val2);
 
         helper.dom.addPara(div, "We first find the following intermediate \
             results in order to use the vector projection formula.");
@@ -62,15 +63,57 @@ let sbsNode =
         
         helper.dom.addPara(div, text);
         helper.dom.addPara(div, "We then plug in the results:");
-        
 
+        text = "\\begin{align*}\\mathrm{proj}_{" + ontoTeX + "} " + fromTeX + " ~~&=~~";
+        text += "\\dfrac{" + ontoTeX + " \\cdot" + fromTeX + "}{" +
+                             ontoTeX + " \\cdot" + ontoTeX + "}\\;" + ontoTeX + "\\\\[3pt]&=~~";
+        text += toTeX.frac([tog, sq]) + "\\;" + ontoTeX + "\\\\[3pt]&=~~";
+        togoversq = helper.fracs.simplify([tog, sq]);
+        if (!(Math.abs(togoversq[0]) === Math.abs(tog) && togoversq[1] === Math.abs(sq)))
+            text += toTeX.frac(togoversq) + "\\;" + ontoTeX + "\\\\[3pt]&=~~";
+        text += toTeX.fracVecComma(sol) + "\\end{align*}"
+
+        helper.dom.addPara(div, text)
         return div;
     },
 
     mtxMult: function() {
         let div = document.createElement("div");
+        let mtx1 = activeProb.val1;
+        let mtx2 = activeProb.val2;
+        let val1dims = "\\(" + mtx1.length + " \\times " + mtx1[0].length + "\\)";
+        let val2dims = "\\(" + mtx2.length + " \\times " + mtx2[0].length + "\\)";
+        let resdims = "\\(" + mtx1.length + " \\times " + mtx2[0].length + "\\)";
+        helper.dom.addPara(div, "First of all, since the dimensions of the " +
+                    "multiplicand matrices are " + val1dims + " and " + val2dims +
+                    ", the product matrix will have dimensions " + resdims + ".");
 
-        helper.dom.addPara(div, "First, ")
+        helper.dom.addPara(div, "The entry in row \\(i\\) and column \\(j\\) of the " +
+                    "product matrix is given by the dot product of the \\(i\\)th row " +
+                    "of the first matrix and the \\(j\\)th column of the second. Thus, " +
+                    "the matrix product is:");
+        
+        step1mtx = [];
+        step2mtx = [];
+        for (let row = 0; row < mtx1.length; row++) {
+            step1mtx.push([]);
+            step2mtx.push([]);
+            for (let col = 0; col < mtx2[0].length; col++) {
+                let vec1 = mtx1[row];
+                let vec2 = helper.matrices.getCol(mtx2, col);
+                let steps = toTeX.dot2Steps(vec1, vec2);
+                step1mtx[row].push(steps[0]);
+                step2mtx[row].push(steps[1]);
+            }
+        }
+
+        text = "\\begin{align*} &\\scriptstyle" + toTeX.mtx(step1mtx);
+        text += "\\\\= ~~~ &\\scriptstyle" + toTeX.mtx(step2mtx);
+        text += "\\\\= ~~~ &\\scriptstyle" + toTeX.mtx(calc.mtxMult(mtx1, mtx2));
+        text += "\\end{align*}";
+
+        helper.dom.addPara(div, text);
+        return div
     },
 
     luDecomp: function () {

@@ -92,7 +92,14 @@ let helper =
             if (col0s[maxCol] === n) return [maxCol, true, true];
             if (row0s[maxRow] < col0s[maxCol]) return [maxCol, true, false];
             return [maxRow, false, false];
-        }
+        },
+
+        getCol: function(mtx, c) {
+            res = [];
+            for (let row = 0; row < mtx.length; row++)
+                res.push(mtx[row][c]);
+            return res;
+        },
     },
 
     fracs: {        

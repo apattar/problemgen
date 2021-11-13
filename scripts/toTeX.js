@@ -105,8 +105,8 @@ let toTeX =
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < mtx.length; i++) {
             for (let j = 0; j < mtx[i].length - 1; j++)
-                res += (mtx[i][j]) + "&"
-            res += (mtx[i][mtx[i].length - 1]) + "\\\\"
+                res += (mtx[i][j]) + " & "
+            res += (mtx[i][mtx[i].length - 1]) + " \\\\"
         }
         return res.slice(0, res.length - 2) + "\\end{bmatrix}"
     },
@@ -119,6 +119,18 @@ let toTeX =
         }
         res += vec[vec.length - 1] + " \\rangle";
         return res;
+    },
+
+    fracVecComma: function(vec) {
+        let delims = ["\\bigg\\langle", "\\bigg\\rangle"]
+        if (vec.filter(function(frac){return frac[1] !== 1}).length === 0) {
+            delims = ["\\langle", "\\rangle"]
+        }
+        let res = delims[0];
+        for (let i = 0; i < vec.length; i++) {
+            res += toTeX.frac(vec[i]) + ",\\;";
+        }
+        return res.slice(0, res.length - 3) + delims[1];
     },
 
     vecCol: function(vec) {

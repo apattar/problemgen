@@ -6,7 +6,7 @@ const genText = document.getElementById("problem-text");
 const solButton = document.getElementById("solution-button");
 const solText = document.getElementById("solution-text");
 const sbsButton = document.getElementById("step-by-step-button");
-const sbsSection = document.getElementById("sbs-section");  // TODO would be better to make one
+const sbsSection = document.getElementById("sbs-section");
 
 // this object represents the current active problem
 let activeProb = {
@@ -121,13 +121,7 @@ let showSolution =
 
     vecProj: function() {
         let sol = calc.vecProj(activeProb.val1, activeProb.val2);
-        
-        let res = "\\[\\bigg\\langle ";
-        for (let i = 0; i < sol.length; i++) {
-            res += toTeX.frac(sol[i]) + ",";
-        }
-        res = res.slice(0, res.length - 1) + "\\bigg\\rangle \\]";
-        solText.textContent = res;
+        solText.textContent = "\\[" + toTeX.fracVecComma(sol) + "\\]";
     },
 
     mtxMult: function() {
@@ -162,11 +156,18 @@ let showSolution =
     }
 }
 
-let instructionsDictionary =
+let probTypeInstructions =
 {
     // TODO add instructions in an associative dict here, like:
-    crossProd: "Find the following cross product."
     // and then TODO implement them
+    crossProduct: "Find the following cross product.",
+    vecProj: "Find the following vector projection.",
+    mtxMult: "Find the following matrix product.",
+    luDecomp: "Find the LU decomposition of the following matrix.",
+    det: "Find the determinant of the following matrix.",
+    mtxInverse: "Find the inverse of the following matrix, using the Gauss-Jordan method.",
+    rref: "Find the reduced row echelon form of the following matrix.",
+    derivative: "Find the derivative of the following expression.",
 }
 
 
@@ -209,6 +210,7 @@ window.onkeydown = function(e) {
 
 // sidebar problem type buttons
 let titleProbType = document.getElementById("title-problem-type");
+let instructions = document.getElementById("instructions");
 let typeButtons = document.querySelectorAll("#problem-type-sidebar button");
 typeButtons.forEach(function(b1) {
     b1.onclick = function() {
@@ -219,6 +221,7 @@ typeButtons.forEach(function(b1) {
         b1.classList.add("active");
         activeProb.type = b1.id;
         titleProbType.innerText = b1.innerText;
+        instructions.innerText = probTypeInstructions[b1.id];
         genButton.click();
     }
 });
@@ -244,4 +247,5 @@ document.getElementById("settings-cancel-button").onclick = function() {
 typeButtons[0].classList.add("active");
 activeProb.type = typeButtons[0].id;
 titleProbType.innerText = typeButtons[0].innerText;
+instructions.innerText = probTypeInstructions[typeButtons[0].id];
 genButton.click();
