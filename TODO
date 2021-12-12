@@ -1,9 +1,12 @@
 
 For first release:
-- instructions
-- vecProj and mtxMult sbs nodes
+- instructions >
+- vecProj and mtxMult sbs nodes >
 - simple options
+  - some sort of validation skeleton
+  - then the rest is easy
 - branch & remove (all) calculus-related stuff from main
+- create (1) release, and (2) github pages thing
 
 
 

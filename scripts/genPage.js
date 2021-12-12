@@ -193,20 +193,6 @@ sbsButton.onclick = function() {
     sbsSection.appendChild(sbsNode[activeProb.type]());
     MathJax.typesetClear(sbsSection); MathJax.typeset([sbsSection]);
 }
-window.onkeydown = function(e) {
-    switch (e.key) {
-        case settings.genShortcut:
-            genButton.click();
-            break;
-        case settings.solShortcut:
-            solButton.click();
-            break;
-        case settings.sbsShortcut:
-            solButton.click();
-            sbsButton.click();
-            break;
-    }
-}
 
 // sidebar problem type buttons
 let titleProbType = document.getElementById("title-problem-type");
@@ -229,15 +215,101 @@ typeButtons.forEach(function(b1) {
 // settings dialog
 let settingsDialogCtnr = document.getElementById("settings-dialog-container");
 document.getElementById("change-settings-button").onclick = function() {
+    // set default values of form widgets based on settings
+    document.getElementById("min").value = settings.min;
+    document.getElementById("max").value = settings.max;
+    document.getElementById("minDim").value = settings.minDim;
+    document.getElementById("maxDim").value = settings.maxDim;
+    document.getElementById("genShortcut").value = settings.genShortcut;
+    document.getElementById("solShortcut").value = settings.solShortcut;
+    document.getElementById("sbsShortcut").value = settings.sbsShortcut;
     settingsDialogCtnr.classList.remove("inactive");
 }
-document.getElementById("settings-save-changes-button").onclick = function() {
-    // TODO update the settings global variable with changes to settings
-    settingsDialogCtnr.classList.add("inactive");
+let settingsForm = document.getElementById("settings-form");
+settingsForm.onsubmit = function(event) {
+    event.preventDefault();
+
+    // TODO for later... make sure min and max are not 0 and 1
+
+    // check validity of inputs, before changing settings
+    let valid = true;
+
+    let maxInput = document.getElementById("max");
+    let maxDimInput = document.getElementById("maxDim");
+    let min = parseInt(document.getElementById("min").value);
+    let max = parseInt(maxInput.value);
+    let minDim = parseInt(document.getElementById("minDim").value);
+    let maxDim = parseInt(maxDimInput.value);
+    if (max < min) {
+        valid = false;
+        maxInput.setCustomValidity("The maximum integer value must be greater than or equal to the minimum integer value.");
+    }
+    if (maxDim < minDim) {
+        valid = false;
+        maxDimInput.setCustomValidity("The maximum matrix dimension must be greater than or equal to the minimum matrix dimension.");
+    }
+
+    let solShortcutInput = document.getElementById("solShortcut");
+    let sbsShortcutInput = document.getElementById("sbsShortcut");
+    let genShortcut = document.getElementById("genShortcut").value;
+    let solShortcut = solShortcutInput.value;
+    let sbsShortcut = sbsShortcutInput.value;
+    if ((genShortcut === sbsShortcut) || (solShortcut === sbsShortcut)) {
+        valid = false;
+        sbsShortcutInput.setCustomValidity("Shortcuts must be distinct from one another.");
+    } else if (genShortcut === solShortcut) {
+        valid = false;
+        solShortcutInput.setCustomValidity("Shortcuts must be distinct from one another.");
+    }
+
+    // make sure all inputs are valid before making changes
+    if (valid) {
+        settingsDialogCtnr.classList.add("inactive");
+
+        // apply all changes
+        settings.min = min;
+        settings.max = max;
+        settings.minDim = minDim;
+        settings.maxDim = maxDim;
+        document.getElementById("sidebar-gen-shortcut").textContent =
+            (genShortcut === "") ? "none" : genShortcut;
+        document.getElementById("sidebar-sol-shortcut").textContent =
+            (solShortcut === "") ? "none" : solShortcut;
+        document.getElementById("sidebar-sbs-shortcut").textContent =
+            (sbsShortcut === "") ? "none" : sbsShortcut;
+        settings.genShortcut = genShortcut;
+        settings.solShortcut = solShortcut;
+        settings.sbsShortcut = sbsShortcut;
+    } else {
+        settingsForm.reportValidity();
+
+        // clear invalid state of invalid form elements
+        maxInput.setCustomValidity("");
+        maxDimInput.setCustomValidity("");
+        solShortcutInput.setCustomValidity("");
+        sbsShortcutInput.setCustomValidity("");
+    }
 }
 document.getElementById("settings-cancel-button").onclick = function() {
-    // reset settings controls to their defaults?
     settingsDialogCtnr.classList.add("inactive");
+}
+
+// configure keyboard shortcuts
+window.onkeydown = function(e) {
+    if (settingsDialogCtnr.classList.contains("inactive")) {
+        switch (e.key) {
+            case settings.genShortcut:
+                genButton.click();
+                break;
+            case settings.solShortcut:
+                solButton.click();
+                break;
+            case settings.sbsShortcut:
+                solButton.click();
+                sbsButton.click();
+                break;
+        }
+    }
 }
 
 

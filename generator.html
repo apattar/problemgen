@@ -37,20 +37,61 @@
     <section id="settings-sidebar" class="sidebar">
         <h1>Settings</h1>
         <h2>Keyboard Shortcuts</h2>
-            <p>Generate: <code>g</code></p>
-            <p>Show solution: <code>s</code></p>
-            <p>See step-by-step solution: <code>t</code></p>
+            <p>Generate: <code id="sidebar-gen-shortcut">g</code></p>
+            <p>Show solution: <code id="sidebar-sol-shortcut">s</code></p>
+            <p>See step-by-step solution: <code id="sidebar-sbs-shortcut">t</code></p>
         <button id="change-settings-button" class="aux-buttons shadowed-buttons">Change Settings</button>
     </section>
 
     <section id="settings-dialog-container" class="inactive">
         <div id="settings-overlay"></div>
         <dialog id="settings-dialog">
+            <form id="settings-form">
             <h1>Settings</h1>
-            <p>Placeholder text</p>
+            <fieldset>
+                <legend>Number Generation Ranges</legend>
+                <p>All ranges are inclusive.</p>
+                <table class="settings-dialog-table">
+                    <tr>
+                    <td><label for="min">Minimum integer value:</label></td>
+                    <td><input id="min" type="number" value="10" /></td>
+                    </tr>
+                    <tr>
+                    <td><label for="max">Maximum integer value:</label></td>
+                    <td><input id="max" type="number" /></td>
+                    </tr>
+                    <tr>
+                    <td><label for="minDim">Minimum matrix dimension:</label></td>
+                    <td><input id="minDim" type="number" min="2" max="5" /></td>
+                    </tr>
+                    <tr>
+                    <td><label for="maxDim">Maximum matrix dimension:</label></td>
+                    <td><input id="maxDim" type="number" min="2" max="5" /></td>
+                    </tr>
+                </table>
+            </fieldset>
+            <fieldset>
+                <legend>Keyboard Shortcuts</legend>
+                <p>To disable a shortcut, leave the corresponding field blank.</p>
+                <table class="settings-dialog-table">
+                    <tr>
+                    <td><label for="genShortcut">"Generate" shortcut:</label></td>
+                    <td><input id="genShortcut" maxlength="1" /></td>
+                    </tr>
+                    <tr>
+                    <td><label for="solShortcut">"See solution" shortcut:</label></td>
+                    <td><input id="solShortcut" maxlength="1" /></td>
+                    </tr>
+                    <tr>
+                    <td><label for="sbsShortcut">"See step-by-step solution" shortcut:</label></td>
+                    <td><input id="sbsShortcut" maxlength="1" /></td>
+                    </tr>
+                </table>
+            </fieldset>
             <!-- Make it so that expr stuff greys out when its weight is set to zero -->
-            <button id="settings-save-changes-button" class="main-buttons shadowed-buttons">Save Changes</button>
+            <input type="submit" id="settings-save-changes-button" class="main-buttons shadowed-buttons" value="Save Changes" cursor="pointer">
             <button id="settings-cancel-button" class="aux-buttons shadowed-buttons">Cancel</button>
+            </form>
         </dialog>
     </section>
 

@@ -52,12 +52,12 @@
 }
 
 #problem-type-sidebar {
-    width: 16%;
+    width: 17%;
     float: left;
 }
 
 #settings-sidebar {
-    width: 16%;
+    width: 17%;
     float: right;
 }
 
@@ -86,13 +86,28 @@
     z-index: 2;
     top: 0; left: 0; right: 0; bottom: 0;
     width: 50%;
-    height: 50%;
+    padding-bottom: 65px;
     background-color: white;
     border: solid 2pt black;
     border-radius: 0.5rem;
 }
-
+#settings-dialog fieldset {
+    margin: 1rem;
+}
+.settings-dialog-table {
+    table-layout: fixed;
+    margin: 1rem auto;
+    width: 80%;
+    border-collapse: collapse;
+}
+.settings-dialog-table td:first-child {
+    width: 55%;
+}
+.settings-dialog-table td {
+    text-align: right;
+}
 #settings-save-changes-button {
+    cursor: pointer;
     position: absolute;
     bottom: 10px;
     right: 112px;

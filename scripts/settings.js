@@ -10,7 +10,7 @@ let settings =
     // eventually store settings in local storage?
     // all bounds are inclusive
     min: -5,
-    max: 6, // make sure these can't be 0 and 1 -- how about this, if range includes only 0 and 1 nums, just disable coefficients
+    max: 5, // make sure these can't be 0 and 1 -- how about this, if range includes only 0 and 1 nums, just disable coefficients
     minDim: 2,
     maxDim: 3,
     minDerivSteps: 3, // "this corresponds roughly to the number of steps you would need to differentiate an expression."
@@ -36,21 +36,4 @@ for (let i = 0; i < exprLV2.length; i++) {
 for (let i = 0; i < trigFns.length; i++) {
     settings.trigWeights[trigFns[i]] = 1;
     settings.trigWeightsSum++;
-}
-
-
-
-
-
-// debugging stuff
-
-let printMtx = function(mtx) {
-    let str = "[\n";
-    for (let row = 0; row < mtx.length; row++) {
-        for (let col = 0; col < mtx[row].length; col++) {
-            str += "\t" + mtx[row][col];
-        }
-        str += "\n"
-    }
-    console.log(str + "]");
 }
