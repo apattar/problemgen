@@ -1,0 +1,52 @@
+* {
+    box-sizing: border-box;
+}
+
+#mw-container {
+    background-color: #f0f8ff;
+    width: 194px;   /* 180 + extra 10 for margin + extra 4 for border */
+    height: 194px;
+    margin: 0;
+    padding: 0;
+    border: 2pt solid black;
+    border-radius: 0.5rem;
+    position: relative;
+    display: inline-block;
+
+    white-space: pre;
+    overflow: visible;
+}
+#mw-handle {
+    width: 40px;
+    height: 40px;
+    background-color: lightblue;
+    border: 2pt solid black;
+    border-radius: 50%;
+
+    position: absolute;
+    bottom: -15px;
+    right: -15px;
+
+    touch-action: none;
+}
+#mw-handle:hover {
+    background-color: blue;
+}
+#mw-handle:active {
+    background-color: darkblue;
+}
+
+/* each takes up 60 x 60 pixel box */
+.mw-inner-box {
+    height: 50px;
+    width: 50px;
+    margin: 10px 0 0 10px;
+    padding: 5px;
+
+    font-size: large;
+    text-align: center;
+}
+
+#mw-form {
+    margin: 1em;
+}

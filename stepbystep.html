@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="styles/sidebars.css" />
     <link rel="stylesheet" type="text/css" href="styles/shadowedButtons.css" />
     <link rel="stylesheet" type="text/css" href="styles/sbsPage.css" />
+    <link rel="stylesheet" type="text/css" href="styles/matrixWidget.css" />
 </head>
 <body>
     <header>
@@ -41,19 +42,41 @@
         <button id="settings-button" class="aux-buttons shadowed-buttons">Change Settings</button>
     </section>
 
-
     <main>
         <h1>Step-By-Step Calculator</h1>
-        <p>Sorry, this feature is still in development.</p>
-        <!-- I'd like to have a cool input field for the matrices -->
-        <button class="shadowed-buttons main-buttons">Go</button>
+        <noscript><p>Your browser does not support JavaScript, or you have it turned off. This site relies on JavaScript, meaning that none of the features on this site will work correctly.</p></noscript>
+
+        <p class="vec-input">Vector \(\vec{a}\):</p>
+        <p class="vec-input">\(\big\langle\)<input type="number" id="vec-input-11" aria-label="Vector 1 Entry 1" />, <input type="number" id="vec-input-12" aria-label="Vector 1 Entry 2" />, <input type="number" id="vec-input-13" aria-label="Vector 1 Entry 3" />\(\big\rangle\)</p>
+        <p class="vec-input">Vector \(\vec{b}\):</p>
+        <p class="vec-input">\(\big\langle\)<input type="number" id="vec-input-21" aria-label="Vector 2 Entry 1" />, <input type="number" id="vec-input-22" aria-label="Vector 2 Entry 2" />, <input type="number" id="vec-input-23" aria-label="Vector 2 Entry 3" />\(\big\rangle\)</p>
+
+        <table id="mw-form" class="mtx-input hidden">
+            <tr><td><label for="mw-rows-input">Rows: </label></td><td><input type="number" min="2" max="4" id="mw-rows-input" /></td></tr>
+            <tr><td><label for="mw-cols-input">Columns: </label></td><td><input type="number" min="2" max="4" id="mw-cols-input" /></td></tr>
+            <tr><td colspan=2><button id="mw-submit">Set Dimensions</button></td></tr>
+        </table>
+        <div id="mw-container" class="mtx-input hidden"><button id="mw-handle"></button></div>
+
+        <p id="instructions">Click "Go" to show a step-by-step calculation of \(\vec{a} \times \vec{b}\).</p>
+
+        <button id="go" class="shadowed-buttons main-buttons">Go</button>
+
+        <section id="sbs-section">
+            <div> <!-- step-by-step instructions go here --> </div>
+        </section>
     </main>
 
     <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+    <script type="text/javascript" src="scripts/calc.js"></script>
+    <script type="text/javascript" src="scripts/toTeX.js"></script>
+    <script type="text/javascript" src="scripts/helper.js"></script>
     <script type="text/javascript" src="scripts/sbsNode.js"></script>
+    <script type="text/javascript" src="scripts/jquery-3.6.0.js"></script>
+    <script type="text/javascript" src="scripts/matrixWidget.js"></script>
     <script type="text/javascript" src="scripts/sbsPage.js"></script>
 </body>
 </html>

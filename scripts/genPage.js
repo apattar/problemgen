@@ -170,7 +170,6 @@ let probTypeInstructions =
     derivative: "Find the derivative of the following expression.",
 }
 
-
 // attach event handlers
 
 // generating and solving

@@ -21,7 +21,7 @@ let sbsNode =
             toTeX.sum([x[1] * y[2], -x[2] * y[1]]) + ",\\; " +
             toTeX.sum([x[2] * y[0], -x[0] * y[2]]) + ",\\; " +
             toTeX.sum([x[0] * y[1], -x[1] * y[0]]) + "\\rangle\\\\[3pt]";
-        text += "~~&=~~ " + solText.textContent + "\\end{align*}";
+        text += "~~&=~~ " + toTeX.vecComma(calc.crossProduct(x, y)) + "\\end{align*}";
 
         // // TODO does this really need to be here? If not, remove
         // text += "To get this expression, we used the following cross product formula:\
