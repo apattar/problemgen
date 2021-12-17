@@ -409,13 +409,16 @@ let sbsNode =
             }
 
             // one-ify the pivot row
-            let pivRecip = helper.fracs.recip(cpy[pivRow][pivRow])
-            helper.matrices.multrow(cpy, pivRow, pivRecip);
-            helper.matrices.multrow(inv, pivRow, pivRecip);
-            helper.dom.addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
-                     ((pivRecip[0] === 1 && pivRecip[1] === 1) ? "" :
-                     toTeX.frac(pivRecip)) + "\\text{R}" + (pivRow + 1) + "\\]",
-                     toTeX.augFracMtx(cpy, inv), onTable, table);
+            let pivot = cpy[pivRow][pivRow];
+            if (!(pivot[0] === 1 && pivot[1] === 1)) {
+                let pivRecip = helper.fracs.recip(pivot)
+                helper.matrices.multrow(cpy, pivRow, pivRecip);
+                helper.matrices.multrow(inv, pivRow, pivRecip);
+                helper.dom.addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
+                        ((pivRecip[0] === 1 && pivRecip[1] === 1) ? "" :
+                        toTeX.frac(pivRecip)) + "\\text{R}" + (pivRow + 1) + "\\]",
+                        toTeX.augFracMtx(cpy, inv), onTable, table);
+            }
                 
             // eliminate below and above
             for (let currRow = pivRow + 1; currRow < n; currRow++) {
@@ -464,6 +467,7 @@ let sbsNode =
 
     rref: function() {
         let div = document.createElement("div");
+        let alreadyRref = true;
         let table = null;
         let onTable = [false];
 
@@ -494,6 +498,7 @@ let sbsNode =
                     pivCol++; continue;
                 }
                 
+                alreadyRref = false;
                 helper.matrices.swap(cpy, pivRow, rowToSwap);
                 helper.dom.addRowOp("\\[\\text{Swap } \\text{R}" + (pivRow + 1)
                     + " \\text{ and } \\text{R}" + (rowToSwap + 1) + "\\]",
@@ -502,18 +507,22 @@ let sbsNode =
             
             // one-ify the pivot row
             pivot = cpy[pivRow][pivCol];
-            pivRecip = helper.fracs.simplify([pivot[1], pivot[0]]);
-            helper.matrices.multrow(cpy, pivRow, pivRecip);
-            helper.dom.addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
-                     ((pivRecip[0] === 1 && pivRecip[1] === 1) ? "" :
-                     toTeX.frac(pivRecip)) + "\\text{R}" + (pivRow + 1) + "\\]",
-                     toTeX.fracMtxWBox(cpy, pivRow, pivCol), onTable, table);
+            if (!(pivot[0] === 1 && pivot[1] === 1)) {
+                alreadyRref = false;
+                pivRecip = helper.fracs.simplify([pivot[1], pivot[0]]);
+                helper.matrices.multrow(cpy, pivRow, pivRecip);
+                helper.dom.addRowOp("\\[\\text{R}" + (pivRow + 1) + " = " +
+                        ((pivRecip[0] === 1 && pivRecip[1] === 1) ? "" :
+                        toTeX.frac(pivRecip)) + "\\text{R}" + (pivRow + 1) + "\\]",
+                        toTeX.fracMtxWBox(cpy, pivRow, pivCol), onTable, table);
+            }
 
             // eliminate the stuff below the pivot, skipping zeros
             currRow = pivRow + 1;
             while (currRow < cpy.length) {
                 if (cpy[currRow][pivCol][0] !== 0) {
                     // gotta make it zero, using a row operation
+                    alreadyRref = false;
                     let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
                     helper.matrices.rowop(cpy, currRow, pivRow, negB);
                     helper.dom.addRowOp(
@@ -529,6 +538,7 @@ let sbsNode =
             while (currRow >= 0) {
                 if (cpy[currRow][pivCol][0] !== 0) {
                     // gotta make it zero, using a row operation
+                    alreadyRref = false;
                     let negB = helper.fracs.multiply([-1,1], cpy[currRow][pivCol]);
                     helper.matrices.rowop(cpy, currRow, pivRow, negB);
                     helper.dom.addRowOp(
@@ -542,6 +552,12 @@ let sbsNode =
             // move on to the next pivot
             pivCol++;
             pivRow++;
+        }
+
+        if (alreadyRref) {
+            helper.dom.removeAllChildren(div);
+            helper.dom.addPara(div, "This matrix is already in reduced-row echelon form.");
+            return div;
         }
 
         if (onTable[0])  // in case it ends in a table
