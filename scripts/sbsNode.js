@@ -84,6 +84,9 @@ let sbsNode =
         let val1dims = "\\(" + mtx1.length + " \\times " + mtx1[0].length + "\\)";
         let val2dims = "\\(" + mtx2.length + " \\times " + mtx2[0].length + "\\)";
         let resdims = "\\(" + mtx1.length + " \\times " + mtx2[0].length + "\\)";
+        helper.dom.addPara(div, "We shall find the product \\(" + toTeX.mtx(mtx1) +
+                    "\\times" + toTeX.mtx(mtx2) + "\\).");
+
         helper.dom.addPara(div, "First of all, since the dimensions of the " +
                     "multiplicand matrices are " + val1dims + " and " + val2dims +
                     ", the product matrix will have dimensions " + resdims + ".");
@@ -122,10 +125,22 @@ let sbsNode =
         // handle for if the matrix is already upper triangular
         if (helper.matrices.isUpperTriangular(activeProb.val1)) {
             helper.dom.addPara(div, "Notice that the matrix is already upper \
-                triangular. This means that the only possible lower triangular \
+                triangular. The only possible lower triangular \
                 matrix that it can be multiplied by to return itself is the \
-                identity matrix, which is shown as \\(L\\) in the solution \
-                box.");
+                identity matrix. Thus, our LU decomposition is:" +
+                "\\[L = " + toTeX.mtx(helper.matrices.identity(activeProb.val1.length)) +
+                ", U = " + toTeX.mtx(activeProb.val1) +
+                "\\]");
+            return div;
+        }
+        if (helper.matrices.isLowerTriangular(activeProb.val1)) {
+            helper.dom.addPara(div, "Notice that the matrix is already lower \
+                triangular. The only possible upper triangular \
+                matrix that it can be multiplied by to return itself is the \
+                identity matrix. Thus, our LU decomposition is:" +
+                "\\[L = " + toTeX.mtx(activeProb.val1) +
+                ", U = " + toTeX.mtx(helper.matrices.identity(activeProb.val1.length)) +
+                "\\]");
             return div;
         }
 
@@ -316,7 +331,7 @@ let sbsNode =
                 You can see their step-by-step calculations by plugging them \
                 into ");
             let a = document.createElement("a");
-            a.appendChild(document.createTextNode("this step-by-step \
+            a.appendChild(document.createTextNode("the step-by-step \
                 calculator"));
             a.href = "stepbystep.html";  // TODO change this link
             a.setAttribute("target", "_blank");
@@ -352,7 +367,7 @@ let sbsNode =
 
             // fourth simplification
             
-            str += " =~~ &" + solText.textContent + "\\\\\\end{align*}";
+            str += " =~~ &" + calc.det(M, n) + "\\\\\\end{align*}";
             helper.dom.addPara(div, str);
         }
 

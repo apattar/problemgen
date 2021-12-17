@@ -5,11 +5,12 @@ For first release:
 - simple options >
   - some sort of validation skeleton >
   - then the rest is easy >
-- step by step calculator page
-  - the easy stuff first:
-    - integrate the matrix widget
-    - get it to work for determinants or something
-- branch & remove (all) calculus-related stuff from main
+- step by step calculator page >
+  - the easy stuff first: >
+    - integrate the matrix widget >
+    - get it to work for determinants or something >
+  - all the other stuff >
+- branch & remove (all) calculus-related and unused stuff from main
 - create (1) release, and (2) github pages thing
 
 

@@ -9,21 +9,27 @@
     border-radius: 0.5rem;
 }
 
-/* tables */
+/* sbs section tables */
 
 #sbs-section table {
     margin: 1rem auto;
     border-collapse: collapse;
 }
-#sbs-section table th, #sbs-section table th td {
+#sbs-section table * {
     padding: 0;
 }
 
 /* input toggling stuff */
+
 .hidden {
     display: none !important;
 }
 
+/* matrix dimensions input form table */
+
+#mw-form tr td {
+    padding: 0.3rem;
+}
 
 /* shadowed buttons positioning */
 

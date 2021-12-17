@@ -14,8 +14,15 @@ let helper =
         return min + Math.floor(Math.random() * ((max + 1) - min));
     },
 
+    vecsEqual: function(a, b) {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++)
+            if (a[i] !== b[i]) return false;
+        return true;
+    },
+
     matrices: {
-        identity: function(n) {     // TODO remove?
+        identity: function(n) {
             let res = [];
             for (let i = 0; i < n; i++) {
                 res.push([]);
@@ -71,6 +78,12 @@ let helper =
                     if (mtx[i][j]) return false;
             return true;
         },
+        isLowerTriangular: function(mtx) {
+            for (let i = 0; i < mtx.length; i++)
+                for (let j = mtx[i].length - 1; j > i; j--)
+                    if (mtx[i][j]) return false;
+            return true;
+        },
 
         // returns the row or col with the most zeros,
         // a boolean value representing if it's a col,
@@ -122,7 +135,6 @@ let helper =
         },
         
         simplify: function(frac) {
-            // REQUIRES: frac.length == 2
             if (frac[0] === 0) return [0, 1];
             if (frac[1] < 0) {
                 frac[0] *= -1;
@@ -215,7 +227,6 @@ let helper =
             
             helper.dom.addMtxRow(mtxTeX, table, elimMtxTeX);
         },
-    
         addPara: function(div, text) {
             let p = document.createElement("p");
             p.append(document.createTextNode(text));
