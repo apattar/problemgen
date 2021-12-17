@@ -277,7 +277,7 @@ let sbsNode =
                 toTeX.prodSum([[M[0][0], M[1][1]], [M[0][1], M[1][0]]], true)
                 + "\\\\ &=~~ " +
                 toTeX.sum([M[0][0]*M[1][1], -M[0][1]*M[1][0]])
-                + "\\\\ &=~~" + solText.textContent + "\\end{align*}");
+                + "\\\\ &=~~" + calc.det(M, n) + "\\end{align*}");
 
         } else {
             let subdets = []   // will store the submatrix determinants,
