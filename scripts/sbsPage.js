@@ -55,8 +55,8 @@ prepareInputs = {
         switchToMatrix("Enter a square matrix above, then click \"Go\" " +
                        "to show a step-by-step calculation of its LU decomposition. " +
                        "Note that this calculator does not work for all matrices; it " +
-                       "cannot handle matrices that require row swaps in order to " +
-                       "be decomposed.");
+                       "unfortunately cannot handle matrices that require row swaps " +
+                       "in order to be decomposed.");
         goButton.innerHTML = "Go";
     },
     det: function() {
