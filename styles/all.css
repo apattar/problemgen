@@ -2,6 +2,20 @@
     box-sizing: border-box;
 }
 
+@media screen and (max-width: 40rem) {
+    nav a {
+        display: block;
+    }
+}
+@media screen and (min-width: 40rem) {
+    nav a {
+        display: inline-block;
+    }
+    #about-link {
+        float: right;
+    }
+}
+
 body {
     background-color: #f0fafc;
     margin: auto;
@@ -14,7 +28,6 @@ nav {
 }
 
 nav a {
-    display: inline-block;
     font-family: inherit;
     text-decoration: none;
     color: black;
@@ -34,9 +47,15 @@ nav a.active, #about-link.active {
 
 #about-link {
     background-color: #74a6b8;
-    float: right;
 }
 
 button {
     cursor: pointer;
+}
+
+input[type=number], input[type=text] {
+    max-width: 6rem;
+    border: solid 1pt black;
+    border-radius: 0.5rem;
+    padding: 0.3rem;
 }

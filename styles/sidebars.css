@@ -1,38 +1,69 @@
+@media screen and (max-width: 40rem) {
+    .sidebar {
+        margin: 1rem 0;
+    }
+    #problem-type-sidebar section {
+        display: block;
+    }
+}
+@media screen and (min-width: 40rem) and (max-width: 75rem) {
+    .sidebar {
+        margin: 1rem 0;
+    }
+    #problem-type-sidebar section {
+        padding: 0 1rem;
+        width: 49%;
+        display: inline-block;
+        vertical-align: top;
+    }
+}
+@media screen and (min-width: 75rem) {
+    body {position: relative;}
+    #problem-type-sidebar {
+        width: 17%;
+        position: absolute;
+        top: 3em;
+        left: 0;
+        margin: 2rem 2rem 2rem 0;
+    }
+    #settings-sidebar {
+        width: 17%;
+        position: absolute;
+        top: 3em;
+        right: 0;
+        margin: 2rem 0 2rem 2rem;
+    }
+}
+
+/* overall styling */
+
 .sidebar {
     background-color: white;
     padding: 0.5rem;
     border: solid 2pt black;
     border-radius: 0.5rem;
 }
-
-#problem-type-sidebar {
-    margin: 2rem 2rem 2rem 0;
-}
-#settings-sidebar {
-    margin: 2rem 0 2rem 2rem;
-}
-
 .sidebar h1 {
-    margin: 1rem 0;
+    margin: 0.4rem;
     font-size: xx-large;
 }
-
 .sidebar h2 {
     background-color:#b6ddeb;
     margin-top: 2rem;
     padding: 0.5rem;
-    border-radius: inherit;
+    border-radius: 0.5rem;
     font-size: x-large;
 }
+
+/* buttons */
 
 .sidebar button {
     display: block;
     width: 100%;
 }
-
 #problem-type-sidebar button {
     border-width: 0;
-    border-radius: inherit;
+    border-radius: 0.5rem;
     background-color: inherit;
     text-align: left;
     font-family: inherit;
@@ -40,25 +71,13 @@
     padding: 0.4rem;
     transition: 150ms;
 }
-
 #problem-type-sidebar button:hover {
     background-color: #888787;
     color: white;
 }
-
 #problem-type-sidebar button.active {
     background-color: black;
     color: white;
-}
-
-#problem-type-sidebar {
-    width: 17%;
-    float: left;
-}
-
-#settings-sidebar {
-    width: 17%;
-    float: right;
 }
 
 /* settings dialog */
@@ -66,7 +85,6 @@
 #settings-dialog-container.inactive {
     display: none;
 }
-
 #settings-overlay {
     position: fixed;
     top: 0;
@@ -79,17 +97,28 @@
     background-color: black;
     opacity: 0.5;
 }
-
 #settings-dialog {
     display: block;
     position: fixed;
     z-index: 2;
     top: 0; left: 0; right: 0; bottom: 0;
-    width: 50%;
+    width: 75%;
+    height: 75%;
     padding-bottom: 65px;
     background-color: white;
     border: solid 2pt black;
     border-radius: 0.5rem;
+}
+
+#settings-scroll-area {
+    position: absolute;
+    border: solid 1pt black;
+    border-radius: 0.5rem;
+    top: 5rem;
+    bottom: 4rem;
+    left: 2rem;
+    right: 2rem;
+    overflow: scroll;
 }
 #settings-dialog fieldset {
     margin: 1rem;
@@ -102,9 +131,10 @@
 }
 .settings-dialog-table td:first-child {
     width: 55%;
+    text-align: right;
 }
 .settings-dialog-table td {
-    text-align: right;
+    padding: 0.2rem 0.5rem;
 }
 #settings-save-changes-button {
     cursor: pointer;

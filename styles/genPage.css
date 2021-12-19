@@ -1,5 +1,17 @@
+@media screen and (max-width: 75rem) {
+    main {
+        width: 100%;
+    }
+}
+@media screen and (min-width: 75rem) {
+    main {
+        width: 60%;
+    }
+}
+
 main {
     text-align: center;
+    margin: 0 auto;
 }
 
 main h1 {
@@ -8,7 +20,7 @@ main h1 {
 }
 
 .window {
-    width: 60%;
+    width: 100%;
     min-height: 10rem;
     background-color: beige;
     border: solid 2pt black;
@@ -20,7 +32,8 @@ main h1 {
 .window p {
     display: block;
     text-align: center;
-    margin: 3rem;
+    margin: 3rem auto;
+    overflow: scroll;
 }
 
 
@@ -66,8 +79,9 @@ main h1 {
 
 #sbs-section {
     display: none;
+    overflow: scroll;
     background-color: white;
-    width: 60%;
+    width: 100%;
     margin: 2rem auto;
     padding: 2rem;
     border: solid 2pt black;

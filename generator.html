@@ -13,26 +13,48 @@
 <body>
     <header>
         <nav>
-            <a href="index.html">Home</a><a href="about.html" id="about-link">About</a><a class="active">Problem Generator</a><a href="stepbystep.html">Step-By-Step Calculator</a>
+            <a href="index.html">Home</a><a class="active">Problem Generator</a><a href="stepbystep.html">Step-By-Step Calculator</a><a href="about.html" id="about-link">About</a>
         </nav>
     </header>
 
     <section id="problem-type-sidebar" class="sidebar">
         <h1>Problem Type</h1>
-        <h2>Linear Algebra</h2>
-        <!-- might add: vector length (sqrts), dot product -->
+        <section>
+            <h2>Linear Algebra</h2>
+            <!-- might add: vector length (sqrts), dot product -->
             <button id="crossProduct">Cross Product</button>
             <button id="vecProj">Vector Projections</button>
             <button id="mtxMult">Matrix Multiplication</button>
-            <!-- <button id="gaussElim">Gaussian Elimination</button> -->
             <button id="luDecomp">LU Decomposition</button>
             <button id="det">Matrix Determinant</button>
             <button id="mtxInverse">Gauss-Jordan Inverse</button>
             <button id="rref">RREF</button>
-        <h2>Multivariable Calculus</h2>
+        </section>
+        <section>
+            <h2>Calculus</h2>
             <button id="derivative">Derivative</button>
             <button id="placeholder">Placeholder</button>
+        </section>
     </section>
+
+    <main>
+        <h1><span id="title-problem-type">Cross Product</span> Practice</h1>
+
+        <p id="instructions">Loading...</p>
+
+        <section class="window">
+            <button id="generate-button" class="sol-and-gen-buttons main-buttons shadowed-buttons">GENERATE</button>
+            <p id="problem-text"></p> <!-- Content goes here -->
+        </section>
+        <section class="window">
+            <button id="solution-button" class="sol-and-gen-buttons main-buttons shadowed-buttons">SEE SOLUTION</button>
+            <p id="solution-text"></p> <!-- Solution goes here -->
+            <button id="step-by-step-button" class="inactive aux-buttons shadowed-buttons">see step-by-step solution</button>
+        </section>
+        <section id="sbs-section">
+            <div> <!-- step-by-step instructions go here --> </div>
+        </section>
+    </main>
 
     <section id="settings-sidebar" class="sidebar">
         <h1>Settings</h1>
@@ -48,6 +70,7 @@
         <dialog id="settings-dialog">
             <form id="settings-form">
             <h1>Settings</h1>
+            <section id="settings-scroll-area">
             <fieldset>
                 <legend>Number Generation Ranges</legend>
                 <p>All ranges are inclusive.</p>
@@ -76,43 +99,25 @@
                 <table class="settings-dialog-table">
                     <tr>
                     <td><label for="genShortcut">"Generate" shortcut:</label></td>
-                    <td><input id="genShortcut" maxlength="1" /></td>
+                    <td><input type="text" id="genShortcut" maxlength="1" /></td>
                     </tr>
                     <tr>
                     <td><label for="solShortcut">"See solution" shortcut:</label></td>
-                    <td><input id="solShortcut" maxlength="1" /></td>
+                    <td><input type="text" id="solShortcut" maxlength="1" /></td>
                     </tr>
                     <tr>
                     <td><label for="sbsShortcut">"See step-by-step solution" shortcut:</label></td>
-                    <td><input id="sbsShortcut" maxlength="1" /></td>
+                    <td><input type="text" id="sbsShortcut" maxlength="1" /></td>
                     </tr>
                 </table>
             </fieldset>
             <!-- Make it so that expr stuff greys out when its weight is set to zero -->
+            </section>
             <input type="submit" id="settings-save-changes-button" class="main-buttons shadowed-buttons" value="Save Changes" cursor="pointer">
             <button id="settings-cancel-button" class="aux-buttons shadowed-buttons">Cancel</button>
             </form>
         </dialog>
     </section>
-
-    <main>
-        <h1><span id="title-problem-type">Cross Product</span> Practice</h1>
-
-        <p id="instructions">Loading...</p>
-
-        <section class="window">
-            <button id="generate-button" class="sol-and-gen-buttons main-buttons shadowed-buttons">GENERATE</button>
-            <p id="problem-text"></p> <!-- Content goes here -->
-        </section>
-        <section class="window">
-            <button id="solution-button" class="sol-and-gen-buttons main-buttons shadowed-buttons">SEE SOLUTION</button>
-            <p id="solution-text"></p> <!-- Solution goes here -->
-            <button id="step-by-step-button" class="inactive aux-buttons shadowed-buttons">see step-by-step solution</button>
-        </section>
-        <section id="sbs-section">
-            <div> <!-- step-by-step instructions go here --> </div>
-        </section>
-    </main>
 
     <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script type="text/javascript" id="MathJax-script"

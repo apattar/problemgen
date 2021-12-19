@@ -10,7 +10,7 @@ For first release:
     - integrate the matrix widget >
     - get it to work for determinants or something >
   - all the other stuff >
-- make page design responsive
+- make page design responsive, and perhaps convert all units to rem
 - branch & remove (all) calculus-related and unused stuff from main
 - create (1) release, and (2) github pages thing
 

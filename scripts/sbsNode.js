@@ -84,8 +84,8 @@ let sbsNode =
         let val1dims = "\\(" + mtx1.length + " \\times " + mtx1[0].length + "\\)";
         let val2dims = "\\(" + mtx2.length + " \\times " + mtx2[0].length + "\\)";
         let resdims = "\\(" + mtx1.length + " \\times " + mtx2[0].length + "\\)";
-        helper.dom.addPara(div, "We shall find the product \\(" + toTeX.mtx(mtx1) +
-                    "\\times" + toTeX.mtx(mtx2) + "\\).");
+        helper.dom.addPara(div, "We shall find the following product:\\[" + toTeX.mtx(mtx1) +
+                    "\\times" + toTeX.mtx(mtx2) + "\\]");
 
         helper.dom.addPara(div, "First of all, since the dimensions of the " +
                     "multiplicand matrices are " + val1dims + " and " + val2dims +
@@ -378,6 +378,13 @@ let sbsNode =
         let div = document.createElement("div");
         let mtx = activeProb.val1;
         let n = mtx.length;
+
+        // check if the matrix is the identity already
+        if (helper.matrices.equal(mtx, helper.matrices.identity(mtx.length))) {
+            helper.dom.addPara(div, "This matrix is the identity matrix. Thus, " +
+                "it is already its own inverse.");
+                return div;
+        }
 
         // otherwise, use gauss-jordan
         let cpy = helper.fracs.mtxFracCopy(mtx);

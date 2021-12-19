@@ -22,6 +22,15 @@ let helper =
     },
 
     matrices: {
+        equal: function(A, B) {
+            if ((A.length !== B.length) || (A[0].length !== B[0].length))
+                return false;
+            for (let row = 0; row < A.length; row++)
+                for (let col = 0; col < A[0].length; col++)
+                    if (A[row][col] !== B[row][col]) return false;
+            return true;
+        },
+
         identity: function(n) {
             let res = [];
             for (let i = 0; i < n; i++) {

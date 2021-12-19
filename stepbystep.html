@@ -14,32 +14,29 @@
 <body>
     <header>
         <nav>
-            <a href="index.html">Home</a><a href="about.html" id="about-link">About</a><a href="generator.html">Problem Generator</a><a class="active">Step-By-Step Calculator</a>
+            <a href="index.html">Home</a><a href="generator.html">Problem Generator</a><a class="active">Step-By-Step Calculator</a><a href="about.html" id="about-link">About</a>
         </nav>
     </header>
 
     <!-- Make sure to keep this updated -->
     <section id="problem-type-sidebar" class="sidebar">
         <h1>Problem Type</h1>
-        <h2>Linear Algebra</h2>
-        <!-- might add: vector length (sqrts), dot product -->
+        <section>
+            <h2>Linear Algebra</h2>
+            <!-- might add: vector length (sqrts), dot product -->
             <button id="crossProduct">Cross Product</button>
             <button id="vecProj">Vector Projections</button>
             <button id="mtxMult">Matrix Multiplication</button>
-            <!-- <button id="gaussElim">Gaussian Elimination</button> -->
             <button id="luDecomp">LU Decomposition</button>
             <button id="det">Matrix Determinant</button>
             <button id="mtxInverse">Gauss-Jordan Inverse</button>
             <button id="rref">RREF</button>
-        <h2>Multivariable Calculus</h2>
+        </section>
+        <section>
+            <h2>Calculus</h2>
             <button id="derivative">Derivative</button>
             <button id="placeholder">Placeholder</button>
-    </section>
-
-    <section id="settings-sidebar" class="sidebar">
-        <h1>Settings</h1>
-        <!-- TODO -->
-        <button id="settings-button" class="aux-buttons shadowed-buttons">Change Settings</button>
+        </section>
     </section>
 
     <main>
