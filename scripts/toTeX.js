@@ -1,15 +1,15 @@
+/* This file defines the functions used to convert various representations
+ * of mathematical objects into LaTeX, that can then be rendered with MathJax */
+
 let toTeX =
 {
     frac: function(frac) {
-        // REQUIRES: input is fraction that has been simplified
-        // does not include \[\]s
         if (frac[1] == 1) return "" + frac[0];
         if (frac[0] < 0) return "-\\dfrac{" + (-frac[0]) + "}{" + frac[1] + "}"
         return "\\dfrac{" + frac[0] + "}{" + frac[1] + "}";
     },
 
     fracMtx: function(mtx) {
-        // TODO is this used?
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < mtx.length; i++) {
             for (let j = 0; j < mtx[i].length - 1; j++)
@@ -72,8 +72,7 @@ let toTeX =
         return res.slice(0, res.length - 3);
     },
 
-    sum: function(arr) {    // you can multiply numbers by -1 to subtract
-        // assumes arr.length >= 1
+    sum: function(arr) {
         if (arr.length === 1) return "(" + arr[0] + ")";
         res = arr[0] + ((arr[1] < 0) ? " - " : " + ");
         for (let i = 1; i < arr.length - 1; i++)
@@ -101,7 +100,6 @@ let toTeX =
     },
 
     mtx: function(mtx) {
-        // REQUIRES: input is 2D array, nonempty and no empty columns
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < mtx.length; i++) {
             for (let j = 0; j < mtx[i].length - 1; j++)
@@ -112,7 +110,6 @@ let toTeX =
     },
 
     vecComma: function(vec) {
-        // REQUIRES: input is 1D array with strictly positive length
         let res = "\\langle ";
         for (let i = 0; i < vec.length - 1; i++) {
             res += vec[i] + ", ";
@@ -134,7 +131,6 @@ let toTeX =
     },
 
     vecCol: function(vec) {
-        // REQUIRES: input is 1D array with strictly positive length
         let res = "\\begin{bmatrix}"
         for (let i = 0; i < vec.length - 1; i++) {
             res += vec[i] + "\\\\"
@@ -142,55 +138,4 @@ let toTeX =
         res += vec[vec.length - 1] + "\\end{bmatrix}"
         return res
     },
-
-
-    expr: function(e) {
-        // converts an equation object to LaTeX, recursively
-        // this should be able to be relied on for any expression, even if
-        // it isn't simplified. First order of business, nested coefficients.
-
-        // I think outer things should handle the existence or lack of parens. Each thing in itself should just act as a single expression.
-        if (e.type === "x") {
-            return "x";
-        } else if (e.type === "y") {
-            return "y";
-        } else if (e.type === "z") {
-            return "z";
-        } else if (e.type === "constant") {
-            return e.constant.toString();
-        } else if (e.type === "coeff") {
-            if (e.constant === 1) return toTeX.expr(e.expr);
-            let lead = (e.constant === -1) ? "-" : e.constant.toString();
-            if (["x", "y", "z", "product", "power", "etothe"].includes(e.expr.type) || trigFns.includes(e.expr.type))
-                return lead + "{" + toTeX.expr(e.expr) + "}";
-            else return lead + "\\left( " + toTeX.expr(e.expr) + " \\right)";
-        } else if (e.type === "sum") {
-            // the right expression of a sum is never a sum or difference;
-            // thus, no parentheses are ever needed around expressions.
-            let modExpr2 = helper.expr.isNegative(e.expr2);
-            return "{" + toTeX.expr(e.expr1) + "}" +
-                ((modExpr2 === null) ? " + {" + toTeX.expr(e.expr2) + "}" :
-                                       " - {" + toTeX.expr(modExpr2) + "}");
-        } else if (e.type === "product") {  // product always has parens
-            return "\\left(" + toTeX.expr(e.expr1) + "\\right)\\left(" + toTeX.expr(e.expr2) + "\\right)";
-        } else if (e.type === "quotient") {
-            return "\\dfrac{" + toTeX.expr(e.expr1) + "}{" + toTeX.expr(e.expr2) + "}";
-        } else if (e.type === "power") {
-            // want nothing on base if x y z constant
-            if (["x", "y", "z", "constant"].includes(e.expr.type)) {
-                return "{" + toTeX.expr(e.expr) + "}^{" + e.constant.toString() + "}";
-            } else if (trigFns.includes(e.expr.type)) {
-                return "\\" + e.expr.type + "^{" + e.constant.toString() + "}\\left( " +
-                    toTeX.expr(e.expr.expr) + " \\right)";
-            } else
-                return "{\\left( " + toTeX.expr(e.expr) + "\\right)}^{" + e.constant.toString() + "}";
-        } else if (e.type === "etothe") {
-            if (e.expr.type === "constant" && e.expr.constant === 1) return "e";
-            if (["x", "y", "z", "constant", "product"].concat(trigFns).includes(e.expr.type)) {
-                return "e^{" + toTeX.expr(e.expr) + "}";
-            } else return "e^{\\left(" + toTeX.expr(e.expr) + "\\right)}";
-        } else { // is a trig function
-            return "\\" + e.type + "\\left(" + toTeX.expr(e.expr) + "\\right)";
-        }
-    }
 }

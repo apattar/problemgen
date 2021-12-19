@@ -1,3 +1,5 @@
+/* This file contains the logic used on the stepbystep.html page */
+
 // storage location to read in the active problem
 let activeProb = {
     type: null,

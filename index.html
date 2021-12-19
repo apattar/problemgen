@@ -21,7 +21,6 @@
         <h1>Problem Type</h1>
         <section>
             <h2>Linear Algebra</h2>
-            <!-- might add: vector length (sqrts), dot product -->
             <button id="crossProduct">Cross Product</button>
             <button id="vecProj">Vector Projections</button>
             <button id="mtxMult">Matrix Multiplication</button>
@@ -29,11 +28,6 @@
             <button id="det">Matrix Determinant</button>
             <button id="mtxInverse">Gauss-Jordan Inverse</button>
             <button id="rref">RREF</button>
-        </section>
-        <section>
-            <h2>Calculus</h2>
-            <button id="derivative">Derivative</button>
-            <button id="placeholder">Placeholder</button>
         </section>
     </section>
 
@@ -44,11 +38,11 @@
 
         <section class="window">
             <button id="generate-button" class="sol-and-gen-buttons main-buttons shadowed-buttons">GENERATE</button>
-            <p id="problem-text"></p> <!-- Content goes here -->
+            <p id="problem-text"></p> <!-- generated content goes here -->
         </section>
         <section class="window">
             <button id="solution-button" class="sol-and-gen-buttons main-buttons shadowed-buttons">SEE SOLUTION</button>
-            <p id="solution-text"></p> <!-- Solution goes here -->
+            <p id="solution-text"></p> <!-- solution goes here -->
             <button id="step-by-step-button" class="inactive aux-buttons shadowed-buttons">see step-by-step solution</button>
         </section>
         <section id="sbs-section">
@@ -111,9 +105,8 @@
                     </tr>
                 </table>
             </fieldset>
-            <!-- Make it so that expr stuff greys out when its weight is set to zero -->
             </section>
-            <input type="submit" id="settings-save-changes-button" class="main-buttons shadowed-buttons" value="Save Changes" cursor="pointer">
+            <input type="submit" id="settings-save-changes-button" class="main-buttons shadowed-buttons" value="Save Changes" />
             <button id="settings-cancel-button" class="aux-buttons shadowed-buttons">Cancel</button>
             </form>
         </dialog>
@@ -121,8 +114,7 @@
 
     <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script type="text/javascript" id="MathJax-script"
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> <!-- used to have async attribute -->
-    <!-- TODO just at the start of the page, have loading symbol while MathJax is imported -->
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script type="text/javascript" src="scripts/settings.js"></script>
     <script type="text/javascript" src="scripts/exprCstr.js"></script>
     <script type="text/javascript" src="scripts/helper.js"></script>
@@ -132,12 +124,5 @@
     <script type="text/javascript" src="scripts/sbsNode.js"></script>
     <script type="text/javascript" src="scripts/genPage.js"></script>
 
-    <!-- TODO remove the following debugging help statements -->
-    <script type="text/javascript">
-        let t = toTeX.expr;
-        let p = helper.expr.parse;
-    </script>
-
-    <!-- Remove unnecessary classes & ids when done -->
 </body>
 </html>

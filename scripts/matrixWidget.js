@@ -1,3 +1,5 @@
+/* This file contains all logic controlling the matrix widget used on the stepbystep.html page */
+
 // parameters
 let mwBreathingRoom = 2;  // in px; for outer padding of container
 let mwMinCells = 2;       // minimum # of rows or cols in matrix

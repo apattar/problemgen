@@ -1,5 +1,4 @@
-
-// main driver
+/* This file contains all the logic used on the index.html page */
 
 const genButton = document.getElementById("generate-button");
 const genText = document.getElementById("problem-text");
@@ -10,9 +9,9 @@ const sbsSection = document.getElementById("sbs-section");
 
 // this object represents the current active problem
 let activeProb = {
-    type: null,  // will store problem type (camel case)
-    val1: null,  // will store first (or only) problem item repr.
-    val2: null   // will store second problem item repr. (if applicable)
+    type: null,  // will store problem type
+    val1: null,  // will store first (or only) problem item representation
+    val2: null   // will store second problem item representation (if applicable)
 };
 
 let genAndShow =
@@ -28,8 +27,6 @@ let genAndShow =
     vecProj: function() {
         let n = helper.randint(settings.minDim, settings.maxDim);
         
-        // note, you're projecting val2 onto val1
-        // TODO: make sure sum of squares of val1 is a manageable denominator?
         activeProb.val1 = generate.vec(n);
         activeProb.val2 = generate.vec(n);
 
@@ -90,26 +87,12 @@ let genAndShow =
     },
 
     rref: function() {
-        // TODO why don't you make it so that a fourth of the time the
-        // matrix is singular? The random ones you're generating
-        // tend not to be singular.
-
-        // You can test if a matrix is singular by seeing if one of
-        // its rows is a multiple of one of the others.
-
         let m = helper.randint(settings.minDim, settings.maxDim);
         let n = helper.randint(settings.minDim, settings.maxDim);
         activeProb.val1 = generate.mtx(m, n);
 
         genText.textContent = "\\[" + toTeX.mtx(activeProb.val1) + "\\]";
     },
-
-    derivative: function() {
-        let steps = helper.randint(settings.minDerivSteps, settings.maxDerivSteps);
-        activeProb.val1 = generate.expr(steps, ["x"], []);
-
-        genText.textContent = "\\[" + toTeX.expr(activeProb.val1) + "\\]";
-    }
 }
 
 let showSolution =
@@ -149,17 +132,10 @@ let showSolution =
         let sol = calc.rref(activeProb.val1);
         solText.textContent = "\\[" + toTeX.fracMtx(sol) + "\\]";
     },
-
-    derivative: function() {
-        let sol = calc.derivative(activeProb.val1, "x");
-        solText.textContent = "\\[" + toTeX.expr(sol) + "\\]";
-    }
 }
 
 let probTypeInstructions =
 {
-    // TODO add instructions in an associative dict here, like:
-    // and then TODO implement them
     crossProduct: "Find the following cross product.",
     vecProj: "Find the following vector projection.",
     mtxMult: "Find the following matrix product.",
@@ -167,7 +143,6 @@ let probTypeInstructions =
     det: "Find the determinant of the following matrix.",
     mtxInverse: "Find the inverse of the following matrix, using the Gauss-Jordan method.",
     rref: "Find the reduced row echelon form of the following matrix.",
-    derivative: "Find the derivative of the following expression.",
 }
 
 // attach event handlers
@@ -201,7 +176,7 @@ typeButtons.forEach(function(b1) {
     b1.onclick = function() {
         if (b1.classList.contains("active")) return;
         typeButtons.forEach(function(b2) {
-            b2.classList.remove("active");  // TODO store active one instead?
+            b2.classList.remove("active");
         });
         b1.classList.add("active");
         activeProb.type = b1.id;
@@ -227,8 +202,6 @@ document.getElementById("change-settings-button").onclick = function() {
 let settingsForm = document.getElementById("settings-form");
 settingsForm.onsubmit = function(event) {
     event.preventDefault();
-
-    // TODO for later... make sure min and max are not 0 and 1
 
     // check validity of inputs, before changing settings
     let valid = true;
@@ -313,8 +286,6 @@ window.onkeydown = function(e) {
 
 
 // set up first problem, based on first item in list
-// TODO this stuff executes only after everything is loaded
-// TODO - make this based on local storage somehow?
 typeButtons[0].classList.add("active");
 activeProb.type = typeButtons[0].id;
 titleProbType.innerText = typeButtons[0].innerText;

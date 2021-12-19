@@ -1,3 +1,5 @@
+/* This file contains the code for generating step-by-step calculations for all the problem types */
+
 let sbsNode =
 {
     crossProduct: function() {        
@@ -22,19 +24,6 @@ let sbsNode =
             toTeX.sum([x[2] * y[0], -x[0] * y[2]]) + ",\\; " +
             toTeX.sum([x[0] * y[1], -x[1] * y[0]]) + "\\rangle\\\\[3pt]";
         text += "~~&=~~ " + toTeX.vecComma(calc.crossProduct(x, y)) + "\\end{align*}";
-
-        // // TODO does this really need to be here? If not, remove
-        // text += "To get this expression, we used the following cross product formula:\
-        // \\[\\left\\langle{}x_1,x_2,x_3\\right\\rangle \\times \
-        // \\left\\langle{}y_1,y_2,y_3\\right\\rangle = \
-        // \\left\\langle x_2y_3 - x_3y_2,~~ x_3y_1 - x_1y_3,~~ x_1y_2 - x_2y_1\\right\\rangle\\]\
-        // As a shortcut, we can derive this formula by thinking of it as the determinant of a matrix,\
-        // assembled as follows:\
-        // \\[\\left\\langle{}x_1,x_2,x_3\\right\\rangle \\times \
-        // \\left\\langle{}y_1,y_2,y_3\\right\\rangle = \
-        // \\begin{vmatrix}\\hat{\\mathbf{i}}&\
-        // \\hat{\\mathbf{j}}&\\hat{\\mathbf{k}}\\\\\
-        // x_1&x_2&x_3\\\\y_1&y_2&y_3\\end{vmatrix}\\]";
 
         let div = document.createElement("div");
         div.appendChild(document.createTextNode(text));
@@ -315,14 +304,6 @@ let sbsNode =
             str = str.slice(0, str.length - 13);
             str += "\\end{align*}";
             helper.dom.addPara(div, str);
-
-            // TODO cool exercise:
-            // have buttons that you can click to show the step-by-step
-            // computations of the recursive determinants
-            // one option is to put them both in a container
-            // and make them inline
-            // have them link to the sbs page and run a script?
-            // you could use floats?
 
             // creates reference to the link. Can't use addPara method
             let p = document.createElement("p");
