@@ -1,3 +1,10 @@
+@media screen and (max-width: 40rem) {
+    #sbs-section::before {
+        content: "You can scroll horizontally in this box.\A\A";
+        white-space: pre;
+        color: grey;
+    }
+}
 @media screen and (max-width: 75rem) {
     main {
         width: 100%;

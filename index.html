@@ -68,42 +68,38 @@
             <fieldset>
                 <legend>Number Generation Ranges</legend>
                 <p>All ranges are inclusive.</p>
-                <table class="settings-dialog-table">
-                    <tr>
-                    <td><label for="min">Minimum integer value:</label></td>
-                    <td><input id="min" type="number" value="10" /></td>
-                    </tr>
-                    <tr>
-                    <td><label for="max">Maximum integer value:</label></td>
-                    <td><input id="max" type="number" /></td>
-                    </tr>
-                    <tr>
-                    <td><label for="minDim">Minimum matrix dimension:</label></td>
-                    <td><input id="minDim" type="number" min="2" max="5" /></td>
-                    </tr>
-                    <tr>
-                    <td><label for="maxDim">Maximum matrix dimension:</label></td>
-                    <td><input id="maxDim" type="number" min="2" max="5" /></td>
-                    </tr>
-                </table>
+                    <p>
+                    <label for="min" class="settings-input-label">Minimum integer value:</label>
+                    <input id="min" type="number" class="settings-input" value="10" />
+                    </p>
+                    <p>
+                    <label for="max" class="settings-input-label">Maximum integer value:</label>
+                    <input id="max" type="number" class="settings-input" />
+                    </p>
+                    <p>
+                    <label for="minDim" class="settings-input-label">Minimum matrix dimension:</label>
+                    <input id="minDim" type="number" class="settings-input" min="2" max="5" />
+                    </p>
+                    <p>
+                    <label for="maxDim" class="settings-input-label">Maximum matrix dimension:</label>
+                    <input id="maxDim" type="number" class="settings-input" min="2" max="5" />
+                    </p>
             </fieldset>
             <fieldset>
                 <legend>Keyboard Shortcuts</legend>
                 <p>To disable a shortcut, leave the corresponding field blank.</p>
-                <table class="settings-dialog-table">
-                    <tr>
-                    <td><label for="genShortcut">"Generate" shortcut:</label></td>
-                    <td><input type="text" id="genShortcut" maxlength="1" /></td>
-                    </tr>
-                    <tr>
-                    <td><label for="solShortcut">"See solution" shortcut:</label></td>
-                    <td><input type="text" id="solShortcut" maxlength="1" /></td>
-                    </tr>
-                    <tr>
-                    <td><label for="sbsShortcut">"See step-by-step solution" shortcut:</label></td>
-                    <td><input type="text" id="sbsShortcut" maxlength="1" /></td>
-                    </tr>
-                </table>
+                    <p>
+                    <label for="genShortcut" class="settings-input-label">"Generate" shortcut:</label>
+                    <input type="text" id="genShortcut" class="settings-input" maxlength="1" />
+                    </p>
+                    <p>
+                    <label for="solShortcut" class="settings-input-label">"See solution" shortcut:</label>
+                    <input type="text" id="solShortcut" class="settings-input" maxlength="1" />
+                    </p>
+                    <p>
+                    <label for="sbsShortcut" class="settings-input-label">"See step-by-step solution" shortcut:</label>
+                    <input type="text" id="sbsShortcut" class="settings-input" maxlength="1" />
+                    </p>
             </fieldset>
             </section>
             <input type="submit" id="settings-save-changes-button" class="main-buttons shadowed-buttons" value="Save Changes" />

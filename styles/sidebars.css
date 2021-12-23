@@ -5,6 +5,19 @@
     #problem-type-sidebar section {
         display: block;
     }
+    .settings-input-label {
+        display: block;
+        margin-bottom: 0.3rem;
+    }
+    #settings-save-changes-button, #settings-cancel-button {
+        font-size: small;
+    }
+    #settings-save-changes-button {
+        right: 96px;
+    }
+    #settings-save-changes-button:active {
+        right: 94px;
+    }
 }
 @media screen and (min-width: 40rem) and (max-width: 75rem) {
     .sidebar {
@@ -15,6 +28,12 @@
         width: 49%;
         display: inline-block;
         vertical-align: top;
+    }
+    #settings-save-changes-button {
+        right: 112px;
+    }
+    #settings-save-changes-button:active {
+        right: 110px;
     }
 }
 @media screen and (min-width: 75rem) {
@@ -125,7 +144,10 @@
 #settings-dialog fieldset {
     margin: 1rem;
 }
-.settings-dialog-table {
+.settings-input-label {
+    margin-right: 1rem;
+}
+/* .settings-dialog-table {
     table-layout: fixed;
     margin: 1rem auto;
     width: 80%;
@@ -135,18 +157,19 @@
     width: 55%;
     text-align: right;
 }
+
 .settings-dialog-table td {
     padding: 0.2rem 0.5rem;
-}
+} */
 #settings-save-changes-button {
     cursor: pointer;
     position: absolute;
     bottom: 10px;
-    right: 112px;
+    /* right: 112px; */
 }
 #settings-save-changes-button:active {
     bottom: 8px;
-    right: 110px;
+    /* right: 110px; */
 }
 #settings-cancel-button {
     position: absolute;
