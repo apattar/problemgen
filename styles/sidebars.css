@@ -101,13 +101,15 @@
     display: block;
     position: fixed;
     z-index: 2;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 12.5%; left: 12.5%;
+    right: 12.5%; bottom: 12.5%;
     width: 75%;
     height: 75%;
-    padding-bottom: 65px;
+    padding: 16px;
     background-color: white;
     border: solid 2pt black;
     border-radius: 0.5rem;
+    font-size: smaller;
 }
 
 #settings-scroll-area {

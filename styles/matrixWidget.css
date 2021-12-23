@@ -33,10 +33,10 @@
 }
 
 .mw-inner-box {
-    height: 50px;
-    width: 50px;
-    margin: 10px 0 0 10px;
-    padding: 5px;
+    height: 50px !important;
+    width: 50px !important;
+    margin: 10px 0 0 10px !important;
+    padding: 5px !important;
     /* each occupies a 60 x 60 pixel box */
 
     font-size: large;

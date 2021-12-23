@@ -54,7 +54,7 @@ button {
 }
 
 input[type=number], input[type=text] {
-    max-width: 6rem;
+    width: 4.5rem;
     border: solid 1pt black;
     border-radius: 0.5rem;
     padding: 0.3rem;
